@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<!-- saved from url=(0061)http://davidshariff.com/blog/javascript-inheritance-patterns/ -->
+<html lang="en-US" class="no-js"><!--<![endif]--><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.5, minimum-scale=0.5">
+		<title>JavaScript Inheritance Patterns by David Shariff</title>
+		<link rel="profile" href="http://gmpg.org/xfn/11">
+		<link rel="stylesheet" type="text/css" media="all" href="./JavaScript Inheritance Patterns by David Shariff_files/style.css">
+                <link rel="stylesheet" type="text/css" media="all" href="./JavaScript Inheritance Patterns by David Shariff_files/prism.css">
+		<link rel="pingback" href="http://davidshariff.com/blog/xmlrpc.php">
+		<link rel="shortcut icon" href="http://davidshariff.com/blog/wp-content/themes/svbtle/images/favicon.ico">
+		<!--[if lt IE 9]>
+			<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+		<![endif]-->
+		<script type="text/javascript" async="" src="./JavaScript Inheritance Patterns by David Shariff_files/ga.js.下载"></script><script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-4668256-3']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+		<!-- styles that need access to server vars -->
+		<style>
+		blockquote {
+		    border-color: #a1e69e;
+		}
+		figure.logo,
+		aside.alsoby li a:hover,
+		aside.kudo.complete span.circle {
+		    background-color: #a1e69e;
+		}
+		section.preview header#begin h2,
+		ul#user_meta a:hover,
+		nav.pagination span.next a,
+		nav.pagination span.prev a,
+		.comment-awaiting-moderation,
+		header#sidebar h1 span {
+		    color: #a1e69e; 
+		}
+		ul#user_meta a:hover,
+		nav.pagination span.next a,
+		nav.pagination span.prev a {
+		    border-color: #a1e69e;
+		}
+		::-moz-selection {
+		    background: #a1e69e;
+		    color: #fff;
+		    text-shadow: none;
+		}
+		::selection {
+		    background: #a1e69e;
+		    color: #fff;
+		    text-shadow: none;
+		}
+		.entry-content a {
+		    color: #a1e69e;
+		    border-bottom: none;
+		}
+		</style>
+		
+		<link rel="alternate" type="application/rss+xml" title="David Shariff » JavaScript Inheritance Patterns Comments Feed" href="http://davidshariff.com/blog/javascript-inheritance-patterns/feed/">
+<link rel="stylesheet" id="cptch_stylesheet-css" href="./JavaScript Inheritance Patterns by David Shariff_files/style(1).css" type="text/css" media="all">
+<script type="text/javascript" src="./JavaScript Inheritance Patterns by David Shariff_files/jquery.js.下载"></script>
+<script type="text/javascript" src="./JavaScript Inheritance Patterns by David Shariff_files/jquery-migrate.min.js.下载"></script>
+<script type="text/javascript" src="./JavaScript Inheritance Patterns by David Shariff_files/comment-reply.min.js.下载"></script>
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://davidshariff.com/blog/xmlrpc.php?rsd">
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://davidshariff.com/blog/wp-includes/wlwmanifest.xml"> 
+<link rel="prev" title="JavaScript’s ‘this’ Keyword" href="http://davidshariff.com/blog/javascript-this-keyword/">
+<link rel="next" title="100% No CSS Hacks" href="http://davidshariff.com/blog/100-no-css-hacks/">
+<meta name="generator" content="WordPress 3.6">
+<link rel="canonical" href="http://davidshariff.com/blog/javascript-inheritance-patterns/">
+<link rel="shortlink" href="http://davidshariff.com/blog/?p=28">
+<meta name="description" content="JavaScript Inheritance Patterns - In this post, I am going to introduce to you 3 different ways of how you can implement inheritance in JavaScript. You will see inheritance implemented in ...">
+<style type="text/css">
+figure.logo a, aside#logo div a, aside.kudo.complete span.circle{background-image: url();}
+    </style>
+		
+	</head>
+	<body class="single single-post postid-28 single-format-standard" style="">
+
+		<header id="sidebar">
+			<h1><a href="http://davidshariff.com/"><span>David</span> Shariff</a></h1>
+			<h2><a href="http://davidshariff.com/blog/">Manage the UI Platform Team @ Amazon.com</a></h2>
+			<a href="https://twitter.com/davidshariff" class="twitter-follow-button" data-size="small" data-show-count="true">Follow @davidshariff</a><script async="" src="http://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+			
+<div class="amazon-hire">
+        <p>I'm hiring! Send your resumé to:</p>
+        <p><span>primenow-hiring@amazon.com</span></p>
+</div>
+
+			<h3>Previously at <a href="http://us.yahoo.com/">Yahoo</a>, <a href="https://www.agilemarkets.com/">RBS</a>, <a href="http://richi.com/">Richi</a> and <a href="http://trendmicro.com/">Trend Micro</a>.</h3>
+
+			<ul id="user_nav">
+			
+				<div class="menu-links-container"><ul id="menu-links" class="menu"><li id="menu-item-653" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-653"><a title="Blog Homepage" href="http://davidshariff.com/blog">Blog Homepage</a></li>
+<li id="menu-item-654" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-654"><a href="https://github.com/davidshariff/">View my Github</a></li>
+<li id="menu-item-681" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-681"><a href="http://www.linkedin.com/in/dshariff">See my LinkedIn</a></li>
+</ul></div>				
+						
+		
+				
+		  </ul>
+
+<div class="employer-disclaimer">
+Views are my own, and don't represent those of my employer.
+</div>
+
+		</header>
+
+		
+		<section id="river" role="main">
+        
+        
+
+	
+			<div id="first-article">
+			<article id="28" class="post">
+
+				<h2 class="entry-title">	<a href="http://davidshariff.com/blog/javascript-inheritance-patterns/#first-article" class="no-link" title="Permalink to JavaScript Inheritance Patterns" rel="bookmark">JavaScript Inheritance Patterns</a>
+
+</h2>
+
+									<div class="entry-content">
+						<p>In this post, I am going to introduce to you 3 different ways of how you can implement inheritance in JavaScript.<span id="more-28"></span> You will see inheritance implemented in languages such as Java by allowing a class to inherit state and behavior from a superclass, where each superclass can have many subclasses.</p>
+<p>This means that in Java an object is an instance of a class, which can inherit other classes. Now in JavaScript, being prototypal by nature, an object can inherit from an object.</p>
+<p>For the rest of this post, I will introduce the Pseudoclassical, Functional and Prototypal inheritance patterns in JavaScript.</p>
+<h2>Pseudoclassical pattern</h2>
+<p>The Pseudoclassical pattern tries to replicate inheritance in a way that is familiar to those who come from a Java or C like background. By using Pseudoclassical inheritance, we attempt to recreate classic programming language’s behavior by using class wide inheritance and where <em>objects are instances of those classes</em>.</p>
+<p>A pattern which uses a <code>constructor</code> function and the <code>new</code> operator, combined with a prototype added to the <code>constructor</code> is said to be Pseudoclassical.</p>
+<p>In JavaScript, one way to do this inheritance is:</p>
+<ol>
+<li>Invoke a constructor function.</li>
+<li>Point a child’s prototype to the parent’s prototype for inheritance to occur.</li>
+</ol>
+<pre class=" language-javascript"><code class=" language-javascript"><span class="token comment" spellcheck="true">/**
+ * Point a child's prototype to a parent's prototype
+ **/</span>
+<span class="token keyword">var</span> extendObj <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span>childObj<span class="token punctuation">,</span> parentObj<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    childObj<span class="token punctuation">.</span>prototype <span class="token operator">=</span> parentObj<span class="token punctuation">.</span>prototype<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token comment" spellcheck="true">
+// base human object
+</span><span class="token keyword">var</span> Human <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true">
+// inhertiable attributes / methods
+</span>Human<span class="token punctuation">.</span>prototype <span class="token operator">=</span> <span class="token punctuation">{</span>
+    name<span class="token punctuation">:</span> <span class="token string">''</span><span class="token punctuation">,</span>
+    gender<span class="token punctuation">:</span> <span class="token string">''</span><span class="token punctuation">,</span>
+    planetOfBirth<span class="token punctuation">:</span> <span class="token string">'Earth'</span><span class="token punctuation">,</span>
+    sayGender<span class="token punctuation">:</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token function">alert<span class="token punctuation">(</span></span>this<span class="token punctuation">.</span>name <span class="token operator">+</span> <span class="token string">' says my gender is '</span> <span class="token operator">+</span> this<span class="token punctuation">.</span>gender<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    sayPlanet<span class="token punctuation">:</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token function">alert<span class="token punctuation">(</span></span>this<span class="token punctuation">.</span>name <span class="token operator">+</span> <span class="token string">' was born on '</span> <span class="token operator">+</span> this<span class="token punctuation">.</span>planetOfBirth<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token comment" spellcheck="true">
+// male
+</span><span class="token keyword">var</span> Male <span class="token operator">=</span> <span class="token keyword">function</span> <span class="token punctuation">(</span>name<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    this<span class="token punctuation">.</span>gender <span class="token operator">=</span> <span class="token string">'Male'</span><span class="token punctuation">;</span>
+    this<span class="token punctuation">.</span>name <span class="token operator">=</span> <span class="token string">'David'</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true">
+// inherits human
+</span><span class="token function">extendObj<span class="token punctuation">(</span></span>Male<span class="token punctuation">,</span> Human<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment" spellcheck="true">
+// female
+</span><span class="token keyword">var</span> Female <span class="token operator">=</span> <span class="token keyword">function</span> <span class="token punctuation">(</span>name<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    this<span class="token punctuation">.</span>name <span class="token operator">=</span> name<span class="token punctuation">;</span>
+    this<span class="token punctuation">.</span>gender <span class="token operator">=</span> <span class="token string">'Female'</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true">
+// inherits human
+</span><span class="token function">extendObj<span class="token punctuation">(</span></span>Female<span class="token punctuation">,</span> Human<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment" spellcheck="true">
+// new instances
+</span><span class="token keyword">var</span> david <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Male</span><span class="token punctuation">(</span><span class="token string">'David'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">var</span> jane <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Female</span><span class="token punctuation">(</span><span class="token string">'Jane'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+david<span class="token punctuation">.</span><span class="token function">sayGender<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // David says my gender is Male
+</span>jane<span class="token punctuation">.</span><span class="token function">sayGender<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // Jane says my gender is Female
+</span>
+Male<span class="token punctuation">.</span>prototype<span class="token punctuation">.</span>planetOfBirth <span class="token operator">=</span> <span class="token string">'Mars'</span><span class="token punctuation">;</span>
+david<span class="token punctuation">.</span><span class="token function">sayPlanet<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // David was born on Mars
+</span>jane<span class="token punctuation">.</span><span class="token function">sayPlanet<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // Jane was born on Mars</span></code>
+</pre>
+<p>As expected, we have achieved inheritance in a Pseudoclassical manner, however, this solution has a problem. If you look at the last line, you will see the alert says <code>Jane was born on Mars</code>, but what we really want it to say is <code>Jane was born on Earth</code>. The reason for this is the Male prototype was changed to “Mars”.</p>
+<p>Given the direct link between the <code>Male</code> and <code>Human</code> prototype, if <code>Human</code> has many children inheriting from it, any change on a child’s prototype properties will affect <code>Human</code>, and thus all children inheriting from <code>Human</code>. Changing a child’s prototype should not affect other children inheriting from the same parent. The reason for this is because JavaScript passes objects by reference, not by value, meaning all children of <code>Human</code> inherit changes occurred on other children’s prototypes.</p>
+<p><code>childObj.prototype = parentObj.prototype</code> does give us inheritance. However, if you want to fix the issue above, you need to replace the <code>extendObj</code> function to take the child’s prototype and link it to a temporary object, whose prototype is the parent object’s prototype. In this way, by creating a temporary “middle” object, you allow the temporary object to be empty and inherit its properties from <code>Human</code>.</p>
+<p>By doing this, you have solved the pass by reference issue with a new instance of an empty object, which still inherits from the parent, but is not affected by other children.</p>
+<p>To understand this clearly, the image below shows the flow of the <code>extendObj</code> function.</p>
+<p><img src="./JavaScript Inheritance Patterns by David Shariff_files/classical_inheritance.png" alt="classical inheritance"></p>
+<p>Now, if you ran the same code again, but with the changes in <code>extendObj</code> below, you would see “Jane was born on Earth” was alerted.</p>
+<pre class=" language-javascript"><code class=" language-javascript"><span class="token comment" spellcheck="true">/**
+ * Create a new constructor function, whose prototype is the parent object's prototype.
+ * Set the child's prototype to the newly created constructor function.
+ **/</span>
+<span class="token keyword">var</span> extendObj <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span>childObj<span class="token punctuation">,</span> parentObj<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">var</span> tmpObj <span class="token operator">=</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+    tmpObj<span class="token punctuation">.</span>prototype <span class="token operator">=</span> parentObj<span class="token punctuation">.</span>prototype<span class="token punctuation">;</span>
+    childObj<span class="token punctuation">.</span>prototype <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">tmpObj</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    childObj<span class="token punctuation">.</span>prototype<span class="token punctuation">.</span>constructor <span class="token operator">=</span> childObj<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token comment" spellcheck="true">
+// base human object
+</span><span class="token keyword">var</span> Human <span class="token operator">=</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true">
+// inhertiable attributes / methods
+</span>Human<span class="token punctuation">.</span>prototype <span class="token operator">=</span> <span class="token punctuation">{</span>
+    name<span class="token punctuation">:</span> <span class="token string">''</span><span class="token punctuation">,</span>
+    gender<span class="token punctuation">:</span> <span class="token string">''</span><span class="token punctuation">,</span>
+    planetOfBirth<span class="token punctuation">:</span> <span class="token string">'Earth'</span><span class="token punctuation">,</span>
+    sayGender<span class="token punctuation">:</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token function">alert<span class="token punctuation">(</span></span>this<span class="token punctuation">.</span>name <span class="token operator">+</span> <span class="token string">' says my gender is '</span> <span class="token operator">+</span> this<span class="token punctuation">.</span>gender<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    sayPlanet<span class="token punctuation">:</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token function">alert<span class="token punctuation">(</span></span>this<span class="token punctuation">.</span>name <span class="token operator">+</span> <span class="token string">' was born on '</span> <span class="token operator">+</span> this<span class="token punctuation">.</span>planetOfBirth<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token comment" spellcheck="true">
+// male
+</span><span class="token keyword">var</span> Male <span class="token operator">=</span> <span class="token keyword">function</span> <span class="token punctuation">(</span>name<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    this<span class="token punctuation">.</span>gender <span class="token operator">=</span> <span class="token string">'Male'</span><span class="token punctuation">;</span>
+    this<span class="token punctuation">.</span>name <span class="token operator">=</span> <span class="token string">'David'</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true">
+// inherits human
+</span><span class="token function">extendObj<span class="token punctuation">(</span></span>Male<span class="token punctuation">,</span> Human<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment" spellcheck="true">
+// female
+</span><span class="token keyword">var</span> Female <span class="token operator">=</span> <span class="token keyword">function</span> <span class="token punctuation">(</span>name<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    this<span class="token punctuation">.</span>name <span class="token operator">=</span> name<span class="token punctuation">;</span>
+    this<span class="token punctuation">.</span>gender <span class="token operator">=</span> <span class="token string">'Female'</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true">
+// inherits human
+</span><span class="token function">extendObj<span class="token punctuation">(</span></span>Female<span class="token punctuation">,</span> Human<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment" spellcheck="true">
+// new instances
+</span><span class="token keyword">var</span> david <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Male</span><span class="token punctuation">(</span><span class="token string">'David'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">var</span> jane <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Female</span><span class="token punctuation">(</span><span class="token string">'Jane'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+david<span class="token punctuation">.</span><span class="token function">sayGender<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // David says my gender is Male
+</span>jane<span class="token punctuation">.</span><span class="token function">sayGender<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // Jane says my gender is Female
+</span>
+Male<span class="token punctuation">.</span>prototype<span class="token punctuation">.</span>planetOfBirth <span class="token operator">=</span> <span class="token string">'Mars'</span><span class="token punctuation">;</span>
+david<span class="token punctuation">.</span><span class="token function">sayPlanet<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // David was born on Mars
+</span>jane<span class="token punctuation">.</span><span class="token function">sayPlanet<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // Jane was born on Earth</span></code>
+</pre>
+<h2>Functional pattern</h2>
+<p>Another pattern you can use to achieve inheritance in JavaScript is by <a href="http://davidshariff.com/blog/javascript-inheritance-patterns/www.crockford.com">Douglas Crockford</a>, called Functional inheritance. This pattern allows one object to inherit from another, take the result and augment it at the child level to achieve inheritance. What this really means, is you create an object as your parent, pass the child object to the parent to inherit / apply its properties, and return the resulting object back to the child, who can then augment its&nbsp;own properties to the object returned from the parent.</p>
+<p>Below is the same example used above to explain Pseudoclassical inheritance, but written in a functional nature.</p>
+<pre class=" language-javascript"><code class=" language-javascript"><span class="token keyword">var</span> human <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span>name<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">var</span> that <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+    that<span class="token punctuation">.</span>name <span class="token operator">=</span> name <span class="token operator">||</span> <span class="token string">''</span><span class="token punctuation">;</span>
+    that<span class="token punctuation">.</span>gender <span class="token operator">=</span> <span class="token string">''</span><span class="token punctuation">;</span>
+    that<span class="token punctuation">.</span>planetOfBirth <span class="token operator">=</span> <span class="token string">'Earth'</span><span class="token punctuation">;</span>
+    that<span class="token punctuation">.</span>sayGender <span class="token operator">=</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token function">alert<span class="token punctuation">(</span></span>that<span class="token punctuation">.</span>name <span class="token operator">+</span> <span class="token string">' says my gender is '</span> <span class="token operator">+</span> that<span class="token punctuation">.</span>gender<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">;</span>
+    that<span class="token punctuation">.</span>sayPlanet <span class="token operator">=</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token function">alert<span class="token punctuation">(</span></span>that<span class="token punctuation">.</span>name <span class="token operator">+</span> <span class="token string">' was born on '</span> <span class="token operator">+</span> that<span class="token punctuation">.</span>planetOfBirth<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">return</span> that<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">var</span> male <span class="token operator">=</span> <span class="token keyword">function</span> <span class="token punctuation">(</span>name<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">var</span> that <span class="token operator">=</span> <span class="token function">human<span class="token punctuation">(</span></span>name<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    that<span class="token punctuation">.</span>gender <span class="token operator">=</span> <span class="token string">'Male'</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> that<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">var</span> female <span class="token operator">=</span> <span class="token keyword">function</span> <span class="token punctuation">(</span>name<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">var</span> that <span class="token operator">=</span> <span class="token function">human<span class="token punctuation">(</span></span>name<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    that<span class="token punctuation">.</span>gender <span class="token operator">=</span> <span class="token string">'Female'</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> that<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">var</span> david <span class="token operator">=</span> <span class="token function">male<span class="token punctuation">(</span></span><span class="token string">'David'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">var</span> jane <span class="token operator">=</span> <span class="token function">female<span class="token punctuation">(</span></span><span class="token string">'Jane'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+david<span class="token punctuation">.</span><span class="token function">sayGender<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // David says my gender is Male
+</span>jane<span class="token punctuation">.</span><span class="token function">sayGender<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // Jane says my gender is Female
+</span>
+david<span class="token punctuation">.</span>planetOfBirth <span class="token operator">=</span> <span class="token string">'Mars'</span><span class="token punctuation">;</span>
+david<span class="token punctuation">.</span><span class="token function">sayPlanet<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // David was born on Mars
+</span>jane<span class="token punctuation">.</span><span class="token function">sayPlanet<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // Jane was born on Earth</span></code>
+</pre>
+<p>As you can see by using this pattern, there is no need to use the prototype chain, constructors or the “new” keyword. Functional inheritance achieves this by passing a unique object around every time an instance of the function is called.</p>
+<p>This however, has a downside for performance because each object is unique, meaning each function call creates a new object, so the JavaScript interpreter has to assign new memory to the function in order to recompile everything inside of it as unique again.</p>
+<p>There are also benefits to this approach, as the closures of each function allow for good use of public and private methods / attributes. Let’s take this code for example, which shows a parent class of vehicle and children classes of <code>motorbike</code> and <code>boat</code>.</p>
+<pre class=" language-javascript"><code class=" language-javascript"><span class="token keyword">var</span> vehicle <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span>attrs<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">var</span> _privateObj <span class="token operator">=</span> <span class="token punctuation">{</span>
+        hasEngine<span class="token punctuation">:</span> <span class="token boolean">true</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    that <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+    that<span class="token punctuation">.</span>name <span class="token operator">=</span> attrs<span class="token punctuation">.</span>name <span class="token operator">||</span> <span class="token keyword">null</span><span class="token punctuation">;</span>
+    that<span class="token punctuation">.</span>engineSize <span class="token operator">=</span> attrs<span class="token punctuation">.</span>engineSize <span class="token operator">||</span> <span class="token keyword">null</span><span class="token punctuation">;</span>
+    that<span class="token punctuation">.</span>hasEngine <span class="token operator">=</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token function">alert<span class="token punctuation">(</span></span><span class="token string">'This '</span> <span class="token operator">+</span> that<span class="token punctuation">.</span>name <span class="token operator">+</span> <span class="token string">' has an engine: '</span> <span class="token operator">+</span> _privateObj<span class="token punctuation">.</span>hasEngine<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">return</span> that<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">var</span> motorbike <span class="token operator">=</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+
+   <span class="token comment" spellcheck="true"> // private
+</span>    <span class="token keyword">var</span> _privateObj <span class="token operator">=</span> <span class="token punctuation">{</span>
+        numWheels<span class="token punctuation">:</span> <span class="token number">2</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+   <span class="token comment" spellcheck="true"> // inherit
+</span>    that <span class="token operator">=</span> <span class="token function">vehicle<span class="token punctuation">(</span></span><span class="token punctuation">{</span>
+        name<span class="token punctuation">:</span> <span class="token string">'Motorbike'</span><span class="token punctuation">,</span>
+        engineSize<span class="token punctuation">:</span> <span class="token string">'Small'</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+   <span class="token comment" spellcheck="true"> // public
+</span>    that<span class="token punctuation">.</span>totalNumWheels <span class="token operator">=</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token function">alert<span class="token punctuation">(</span></span><span class="token string">'This Motobike has '</span> <span class="token operator">+</span> _privateObj<span class="token punctuation">.</span>numWheels <span class="token operator">+</span> <span class="token string">' wheels'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+    that<span class="token punctuation">.</span>increaseWheels <span class="token operator">=</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        _privateObj<span class="token punctuation">.</span>numWheels<span class="token operator">++</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">return</span> that<span class="token punctuation">;</span>
+
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">var</span> boat <span class="token operator">=</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+
+   <span class="token comment" spellcheck="true"> // inherit
+</span>    that <span class="token operator">=</span> <span class="token function">vehicle<span class="token punctuation">(</span></span><span class="token punctuation">{</span>
+        name<span class="token punctuation">:</span> <span class="token string">'Boat'</span><span class="token punctuation">,</span>
+        engineSize<span class="token punctuation">:</span> <span class="token string">'Large'</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">return</span> that<span class="token punctuation">;</span>
+
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+myBoat <span class="token operator">=</span> <span class="token function">boat<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+myBoat<span class="token punctuation">.</span><span class="token function">hasEngine<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // This Boat has an engine: true
+</span><span class="token function">alert<span class="token punctuation">(</span></span>myBoat<span class="token punctuation">.</span>engineSize<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // Large
+</span>
+myMotorbike <span class="token operator">=</span> <span class="token function">motorbike<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+myMotorbike<span class="token punctuation">.</span><span class="token function">hasEngine<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // This Motorbike has an engine: true
+</span>myMotorbike<span class="token punctuation">.</span><span class="token function">increaseWheels<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+myMotorbike<span class="token punctuation">.</span><span class="token function">totalNumWheels<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // This Motorbike has 3 wheels
+</span><span class="token function">alert<span class="token punctuation">(</span></span>myMotorbike<span class="token punctuation">.</span>engineSize<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // Small
+</span>
+myMotorbike2 <span class="token operator">=</span> <span class="token function">motorbike<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+myMotorbike2<span class="token punctuation">.</span><span class="token function">totalNumWheels<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // This Motorbike has 2 wheels
+</span>
+myMotorbike<span class="token punctuation">.</span>_privateObj<span class="token punctuation">.</span>numWheels <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // undefined
+</span>myBoat<span class="token punctuation">.</span><span class="token function">totalNumWheels<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // undefined</span></code>
+</pre>
+<p>You can see that it is fairly easy to provide encapsulation. The <code>_privateObj</code> can not be modified from outside of the object, unless exposed by a public method like increaseWheels(). Similarly, private values can also only be read when exposed by a public method, such as motorbike’s <code>totalNumWheels()</code> function.</p>
+<h2>Prototypal pattern</h2>
+<p>You can also implement inheritance in JavaScript using a pure prototypal approach which is more suited to the language.<br>
+As of ECMAScript 5, it is possible to create an inherited object by simply doing the following:</p>
+<pre class=" language-javascript"><code class=" language-javascript"><span class="token keyword">var</span> male <span class="token operator">=</span> Object<span class="token punctuation">.</span><span class="token function">create<span class="token punctuation">(</span></span>human<span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
+<p>However, support is not so good for older browsers, thankfully you can augment the Object with a create method should it not exist already, which will have the same behavior as that of ECMAScript 5.</p>
+<pre class=" language-javascript"><code class=" language-javascript"><span class="token punctuation">(</span><span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token string">'use strict'</span><span class="token punctuation">;</span>
+
+    <span class="token comment" spellcheck="true">/***************************************************************
+     * Helper functions for older browsers
+     ***************************************************************/</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>Object<span class="token punctuation">.</span><span class="token function">hasOwnProperty<span class="token punctuation">(</span></span><span class="token string">'create'</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        Object<span class="token punctuation">.</span>create <span class="token operator">=</span> <span class="token keyword">function</span> <span class="token punctuation">(</span>parentObj<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">function</span> <span class="token function">tmpObj<span class="token punctuation">(</span></span><span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+            tmpObj<span class="token punctuation">.</span>prototype <span class="token operator">=</span> parentObj<span class="token punctuation">;</span>
+            <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">tmpObj</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>Object<span class="token punctuation">.</span><span class="token function">hasOwnProperty<span class="token punctuation">(</span></span><span class="token string">'defineProperties'</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        Object<span class="token punctuation">.</span>defineProperties <span class="token operator">=</span> <span class="token keyword">function</span> <span class="token punctuation">(</span>obj<span class="token punctuation">,</span> props<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">var</span> prop <span class="token keyword">in</span> props<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                Object<span class="token punctuation">.</span><span class="token function">defineProperty<span class="token punctuation">(</span></span>obj<span class="token punctuation">,</span> prop<span class="token punctuation">,</span> props<span class="token punctuation">[</span>prop<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token comment" spellcheck="true">/*************************************************************/</span>
+
+    <span class="token keyword">var</span> human <span class="token operator">=</span> <span class="token punctuation">{</span>
+        name<span class="token punctuation">:</span> <span class="token string">''</span><span class="token punctuation">,</span>
+        gender<span class="token punctuation">:</span> <span class="token string">''</span><span class="token punctuation">,</span>
+        planetOfBirth<span class="token punctuation">:</span> <span class="token string">'Earth'</span><span class="token punctuation">,</span>
+        sayGender<span class="token punctuation">:</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token function">alert<span class="token punctuation">(</span></span>this<span class="token punctuation">.</span>name <span class="token operator">+</span> <span class="token string">' says my gender is '</span> <span class="token operator">+</span> this<span class="token punctuation">.</span>gender<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span><span class="token punctuation">,</span>
+        sayPlanet<span class="token punctuation">:</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token function">alert<span class="token punctuation">(</span></span>this<span class="token punctuation">.</span>name <span class="token operator">+</span> <span class="token string">' was born on '</span> <span class="token operator">+</span> this<span class="token punctuation">.</span>planetOfBirth<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">var</span> male <span class="token operator">=</span> Object<span class="token punctuation">.</span><span class="token function">create<span class="token punctuation">(</span></span>human<span class="token punctuation">,</span> <span class="token punctuation">{</span>
+        gender<span class="token punctuation">:</span> <span class="token punctuation">{</span>value<span class="token punctuation">:</span> <span class="token string">'Male'</span><span class="token punctuation">}</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">var</span> female <span class="token operator">=</span> Object<span class="token punctuation">.</span><span class="token function">create<span class="token punctuation">(</span></span>human<span class="token punctuation">,</span> <span class="token punctuation">{</span>
+        gender<span class="token punctuation">:</span> <span class="token punctuation">{</span>value<span class="token punctuation">:</span> <span class="token string">'Female'</span><span class="token punctuation">}</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">var</span> david <span class="token operator">=</span> Object<span class="token punctuation">.</span><span class="token function">create<span class="token punctuation">(</span></span>male<span class="token punctuation">,</span> <span class="token punctuation">{</span>
+        name<span class="token punctuation">:</span> <span class="token punctuation">{</span>value<span class="token punctuation">:</span> <span class="token string">'David'</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+        planetOfBirth<span class="token punctuation">:</span> <span class="token punctuation">{</span>value<span class="token punctuation">:</span> <span class="token string">'Mars'</span><span class="token punctuation">}</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">var</span> jane <span class="token operator">=</span> Object<span class="token punctuation">.</span><span class="token function">create<span class="token punctuation">(</span></span>female<span class="token punctuation">,</span> <span class="token punctuation">{</span>
+        name<span class="token punctuation">:</span> <span class="token punctuation">{</span>value<span class="token punctuation">:</span> <span class="token string">'Jane'</span><span class="token punctuation">}</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    david<span class="token punctuation">.</span><span class="token function">sayGender<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // David says my gender is Male
+</span>    david<span class="token punctuation">.</span><span class="token function">sayPlanet<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // David was born on Mars
+</span>
+    jane<span class="token punctuation">.</span><span class="token function">sayGender<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // Jane says my gender is Female
+</span>    jane<span class="token punctuation">.</span><span class="token function">sayPlanet<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // Jane was born on Earth
+</span><span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code>
+</pre>
+<h2>Summary</h2>
+<p>So today we have covered 3 different ways that you can implement inheritance in JavaScript. Most people are aware of prototypes, but as we have seen today, the Pseudoclassical and Functional patterns are just as valid. </p>
+<p>Which pattern you should use varies depending on your project, there is no real “1 fits all” solution, so you are best to choose 1 you feel is the most suitable.</p>
+											</div><!-- .entry-content -->
+				
+			</article><!-- #post-## -->
+			</div>
+
+		
+	
+
+
+<div class="yarpp-related">
+<h2 id="also-read-title">Related Posts...</h2><ul id="also-read-items">
+<li><a href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/" rel="bookmark" title="Identifier Resolution and Closures in the JavaScript Scope Chain"><h3>Identifier Resolution and Closures in the JavaScript Scope Chain</h3><p class="link_kudo">1</p></a></li>
+<li><a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/" rel="bookmark" title="What is the Execution Context &amp; Stack in JavaScript?"><h3>What is the Execution Context &amp; Stack in JavaScript?</h3><p class="link_kudo">2</p></a></li>
+<li><a href="http://davidshariff.com/blog/futures-and-promises-in-javascript/" rel="bookmark" title="Futures and Promises in JavaScript"><h3>Futures and Promises in JavaScript</h3><p class="link_kudo">3</p></a></li>
+<li><a href="http://davidshariff.com/blog/javascript-this-keyword/" rel="bookmark" title="JavaScript’s ‘this’ Keyword"><h3>JavaScript’s ‘this’ Keyword</h3><p class="link_kudo">4</p></a></li>
+<li><a href="http://davidshariff.com/blog/javascripts-undefined-explored/" rel="bookmark" title="JavaScript’s Undefined Explored"><h3>JavaScript’s Undefined Explored</h3><p class="link_kudo">5</p></a></li>
+</ul>
+</div>
+
+<div id="comments">
+	<h2>
+		Comments
+	</h2>
+
+	
+	<ol class="commentlist unstyled">
+			<li class="comment even thread-even depth-1" id="li-comment-2">
+		<article id="comment-2" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./JavaScript Inheritance Patterns by David Shariff_files/5dced8b4bef02812724f4d80abd19f9d" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Jacob</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-inheritance-patterns/#comment-2"><time pubdate="" datetime="2012-02-09T14:29:01+00:00">09/02/2012 at 2:29 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Instead of doing:</p>
+<p><code>var tmpObj = function () {}<br>
+tmpObj.prototype = parentObj.prototype;<br>
+childObj.prototype = new tmpObj();<br>
+childObj.prototype.constructor = childObj;</code></p>
+<p>Can't you just do:</p>
+<p><code>childObj.prototype = new parentObj();</code></p>
+<p>It seemed to work for me.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-inheritance-patterns/?replytocom=2#respond" onclick="return addComment.moveForm(&quot;comment-2&quot;, &quot;2&quot;, &quot;respond&quot;, &quot;28&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-2 -->
+	<ul class="children">
+	<li class="comment byuser comment-author-admin bypostauthor odd alt depth-2" id="li-comment-3">
+		<article id="comment-3" class="comment row">
+			<div class="comment-author-avatar span1 offset1">
+				<img alt="" src="./JavaScript Inheritance Patterns by David Shariff_files/85845b4a20e7f101d29feb375f455630" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span6">
+				<div class="comment-author vcard">
+					<span class="fn">David Shariff</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-inheritance-patterns/#comment-3"><time pubdate="" datetime="2012-02-10T10:12:59+00:00">10/02/2012 at 10:12 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span6">
+				<p>@Jacob</p>
+<p>By doing:</p>
+<p><code>childObj.prototype = new parentObj();</code></p>
+<p>You of course still achieve inheritance as you are creating a new parentObj which by nature inherits from parentObj.prototype.</p>
+<p>However, there are 2 reasons I would not recommend using this:</p>
+<p>1. If the parentObj constructor requires arguments, things often get messy and can have side-effects.<br>
+2. From a theoretical point of view, we actually do not want to create a whole new parentObj, we simply want to inherit from it.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-inheritance-patterns/?replytocom=3#respond" onclick="return addComment.moveForm(&quot;comment-3&quot;, &quot;3&quot;, &quot;respond&quot;, &quot;28&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-3 -->
+	</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://irrlab.com/2012/06/21/javascript-inheritance-patterns/" rel="external nofollow" class="url">JavaScript Inheritance Patterns « thoughts…</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-45">
+		<article id="comment-45" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./JavaScript Inheritance Patterns by David Shariff_files/32b92b93b0d34bb3a9a9c7934e4cdf84" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Ramon Gonçalves</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-inheritance-patterns/#comment-45"><time pubdate="" datetime="2012-06-26T03:42:12+00:00">26/06/2012 at 3:42 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Hi. I’m from Brazil, so forgive me for some eventual English mistakes. </p>
+<p>First of all, congratulations for you website. </p>
+<p>hey, about this patterns, I have chosen one of them to use in most of my codes: Functional pattern. </p>
+<p>I chose this because I was facing many troubles with the ‘this’ inside my codes. They weren’t ‘big’ problems, but were bad enough for me to chose functional pattern. </p>
+<p>I agree with you when you say that we don’t have to take a pattern as our “all solutions”, but functional looks ‘better’ for me – funnier to write, at least =] . </p>
+<p>But I haven’t seen many posts about this pattern over the web. Actually, your post is the first (maybe second) I’ve seen. Why do you think this happens? Why anyone have knowledge about this pattern? </p>
+<p>I’m not a big fan of prototype so I try to avoid it. Do you think the performance have a big ‘decrease’ because the use of functional?</p>
+<p>I think that the maintainability of a code using functional pattern is higher than using prototype and this maintainability compensates the performance, don’t you think?</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-inheritance-patterns/?replytocom=45#respond" onclick="return addComment.moveForm(&quot;comment-45&quot;, &quot;45&quot;, &quot;respond&quot;, &quot;28&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-45 -->
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-even depth-1" id="li-comment-66">
+		<article id="comment-66" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./JavaScript Inheritance Patterns by David Shariff_files/19bf66fef7e58d04447150a6835202c0" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn"><a href="https://iridize.com/" rel="external nofollow" class="url">odedbd</a></span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-inheritance-patterns/#comment-66"><time pubdate="" datetime="2012-08-14T18:52:42+00:00">14/08/2012 at 6:52 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Thanks for an interesting write up. It’s great to see these patterns side by side so the similarities and differences can be fully appreciated.</p>
+<p>There are two points I would love to read your opinion about which follow naturally from this discussion:<br>
+1. overloading/overriding object methods by its children, with the possibility of calling some form so super method (or by name).<br>
+2. adding mixins to the mix (pun intended) – how to do it in a way that mixed in methods/properties are inherited.</p>
+<p>If I understand correctly the different patterns you described will have differences in the constraints and challenges of trying to implement super calls or mixins.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-inheritance-patterns/?replytocom=66#respond" onclick="return addComment.moveForm(&quot;comment-66&quot;, &quot;66&quot;, &quot;respond&quot;, &quot;28&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-66 -->
+	</li><!-- #comment-## -->
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-101">
+		<article id="comment-101" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./JavaScript Inheritance Patterns by David Shariff_files/37d2083e6ea3c6b01894e1c53683ff55" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Jean Frederic Nault</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-inheritance-patterns/#comment-101"><time pubdate="" datetime="2012-11-25T13:18:29+00:00">25/11/2012 at 1:18 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>For the example “Pseudoclassical pattern”, when you said </p>
+<p>“However, this solution has a problem. If you look at the last line, you will see the alert says “Jane was born on Mars”, it should say “Jane was born on Earth”. The reason for this is the Male prototype was changed to “Mars”.”</p>
+<p>Its because you did :</p>
+<p>Male.prototype.planetOfBirth = ‘Mars’;</p>
+<p>instead of :</p>
+<p>Male.planetOfBirth = ‘Mars’;</p>
+<p>the second line will create a inner property planetOfBirth  for Male, Women will still keep Earth from its prototype.</p>
+<p>————————————–</p>
+<p>for the second part : </p>
+<p>var extendObj = function(childObj, parentObj) {<br>
+    var tmpObj = function () {}<br>
+    tmpObj.prototype = parentObj.prototype;<br>
+    childObj.prototype = new tmpObj();<br>
+    childObj.prototype.constructor = childObj;<br>
+};</p>
+<p>mmmm I dont like it, you create a new prototype object each time, meaning 1000 object mean 1000 prototype in memory.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-inheritance-patterns/?replytocom=101#respond" onclick="return addComment.moveForm(&quot;comment-101&quot;, &quot;101&quot;, &quot;respond&quot;, &quot;28&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-101 -->
+	<ul class="children">
+	<li class="comment odd alt depth-2" id="li-comment-1004">
+		<article id="comment-1004" class="comment row">
+			<div class="comment-author-avatar span1 offset1">
+				<img alt="" src="./JavaScript Inheritance Patterns by David Shariff_files/8aafcc804d3b7682ed095cca93d7e8ac" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span6">
+				<div class="comment-author vcard">
+					<span class="fn">Chunming Cao</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-inheritance-patterns/#comment-1004"><time pubdate="" datetime="2016-02-24T03:02:02+00:00">24/02/2016 at 3:02 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span6">
+				<p>I agree with you</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-inheritance-patterns/?replytocom=1004#respond" onclick="return addComment.moveForm(&quot;comment-1004&quot;, &quot;1004&quot;, &quot;respond&quot;, &quot;28&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1004 -->
+	</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://www.pearltrees.com/jails/learn/id4392463#pearl68793870&amp;show=reveal,6" rel="external nofollow" class="url">Learn | Pearltrees</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="comment even thread-even depth-1" id="li-comment-127">
+		<article id="comment-127" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./JavaScript Inheritance Patterns by David Shariff_files/8e594fba4c486bbe20c0346fae6e250e" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Henning</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-inheritance-patterns/#comment-127"><time pubdate="" datetime="2013-01-21T18:28:11+00:00">21/01/2013 at 6:28 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>@David Shariff<br>
+If classical inheritance is what you are trying to achieve, then I think Jacobs reply is valid. In C++ and Java you <strong>do</strong> create a new instance of the base-class for each sub-class instance . And you have to pass any required arguments to base-class constructors in the sub-class constructor.<br>
+function Subclass( arg ) {<br>
+    this.protorype = new Baseclass( arg, “foo” );<br>
+}</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-inheritance-patterns/?replytocom=127#respond" onclick="return addComment.moveForm(&quot;comment-127&quot;, &quot;127&quot;, &quot;respond&quot;, &quot;28&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-127 -->
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://mikecroteau.wordpress.com/2013/04/09/javascript-inheritance/" rel="external nofollow" class="url">Javascript Inheritance | Croteau's Blog</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-odd thread-alt depth-1" id="li-comment-306">
+		<article id="comment-306" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./JavaScript Inheritance Patterns by David Shariff_files/a6a43ef03c4ec7431fc11203f59a46fa" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Lars Nyström</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-inheritance-patterns/#comment-306"><time pubdate="" datetime="2013-08-11T18:57:11+00:00">11/08/2013 at 6:57 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>I believe you forgot to use var in the second block of code under “Functional pattern”.</p>
+<pre class=" language-javascript"><code class=" language-javascript">that <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span></code></pre>
+<p>should probably be </p>
+<pre class=" language-javascript"><code class=" language-javascript"><span class="token keyword">var</span> that <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+that <span class="token operator">=</span> <span class="token function">vehicle<span class="token punctuation">(</span></span><span class="token punctuation">{</span>
+        name<span class="token punctuation">:</span> <span class="token string">'Motorbike'</span><span class="token punctuation">,</span>
+        engineSize<span class="token punctuation">:</span> <span class="token string">'Small'</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code>
+</pre>
+<p>should probably be</p>
+<pre class=" language-javascript"><code class=" language-javascript"><span class="token keyword">var</span> that <span class="token operator">=</span> <span class="token function">vehicle<span class="token punctuation">(</span></span><span class="token punctuation">{</span>
+        name<span class="token punctuation">:</span> <span class="token string">'Motorbike'</span><span class="token punctuation">,</span>
+        engineSize<span class="token punctuation">:</span> <span class="token string">'Small'</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code>
+</pre>
+<p>etc.</p>
+<p>Otherwise you risk overriding any global variable named that.</p>
+<p>Still, nice summary of different inheritance patterns.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-inheritance-patterns/?replytocom=306#respond" onclick="return addComment.moveForm(&quot;comment-306&quot;, &quot;306&quot;, &quot;respond&quot;, &quot;28&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-306 -->
+	<ul class="children">
+	<li class="comment byuser comment-author-admin bypostauthor even depth-2" id="li-comment-314">
+		<article id="comment-314" class="comment row">
+			<div class="comment-author-avatar span1 offset1">
+				<img alt="" src="./JavaScript Inheritance Patterns by David Shariff_files/85845b4a20e7f101d29feb375f455630" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span6">
+				<div class="comment-author vcard">
+					<span class="fn">David Shariff</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-inheritance-patterns/#comment-314"><time pubdate="" datetime="2013-08-23T18:41:05+00:00">23/08/2013 at 6:41 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span6">
+				<p>@Lars</p>
+<p>The var was already declared, I used a comma after the _privateObj. Probably the spacing after the object didn’t make it clear: </p>
+<pre class=" language-javascript"><code class=" language-javascript"><span class="token comment" spellcheck="true">// private
+</span><span class="token keyword">var</span> _privateObj <span class="token operator">=</span> <span class="token punctuation">{</span>
+    numWheels<span class="token punctuation">:</span> <span class="token number">2</span>
+<span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token operator">&lt;</span> <span class="token operator">--</span><span class="token operator">-</span>HERE
+<span class="token comment" spellcheck="true">
+// inherit
+</span>that <span class="token operator">=</span> <span class="token function">vehicle<span class="token punctuation">(</span></span><span class="token punctuation">{</span>
+    name<span class="token punctuation">:</span> <span class="token string">'Motorbike'</span><span class="token punctuation">,</span>
+    engineSize<span class="token punctuation">:</span> <span class="token string">'Small'</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code>
+</pre>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-inheritance-patterns/?replytocom=314#respond" onclick="return addComment.moveForm(&quot;comment-314&quot;, &quot;314&quot;, &quot;respond&quot;, &quot;28&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-314 -->
+	</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://www.scoop.it/t/angularj-evoratec/p/4012338557/2013/12/08/javascript-inheritance-patterns-by-david-shariff" rel="external nofollow" class="url">JavaScript Inheritance Patterns by David Sharif...</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-even depth-1" id="li-comment-382">
+		<article id="comment-382" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./JavaScript Inheritance Patterns by David Shariff_files/933285225d6a05a99fe35d72b38ff17e" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">George</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-inheritance-patterns/#comment-382"><time pubdate="" datetime="2013-12-22T03:57:46+00:00">22/12/2013 at 3:57 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>(y)</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-inheritance-patterns/?replytocom=382#respond" onclick="return addComment.moveForm(&quot;comment-382&quot;, &quot;382&quot;, &quot;respond&quot;, &quot;28&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-382 -->
+	</li><!-- #comment-## -->
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-407">
+		<article id="comment-407" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./JavaScript Inheritance Patterns by David Shariff_files/756e16adc2337f47d86cf5fa2e7e0a13" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">elvis</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-inheritance-patterns/#comment-407"><time pubdate="" datetime="2014-02-25T16:58:31+00:00">25/02/2014 at 4:58 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Concise, correct, awesome. </p>
+<p>Thanks.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-inheritance-patterns/?replytocom=407#respond" onclick="return addComment.moveForm(&quot;comment-407&quot;, &quot;407&quot;, &quot;respond&quot;, &quot;28&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-407 -->
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://inhumanbean.com/blog/?p=1044" rel="external nofollow" class="url">JavaScript Inheritance Patterns by David Shariff | InhumanBlog</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://www.conductor.com/nightlight/5-attempts-type-safety-javascript/" rel="external nofollow" class="url">5 Attempts At Type Safety In JavaScript | Nightlight</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://www.scoop.it/t/javascript-by-alexej-popov/p/4040429907/2015/04/01/javascript-inheritance-patterns-by-david-shariff" rel="external nofollow" class="url">JavaScript Inheritance Patterns by David Sharif...</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="https://sathyalog.wordpress.com/2015/06/25/javascript-inheritance-best-example/" rel="external nofollow" class="url">Javascript inheritance best example | Sathya's Log</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://dexpage.com/understanding-a-simple-return-this-in-transit-js/" rel="external nofollow" class="url">understanding a simple return this in transit.js - DexPage</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-even depth-1" id="li-comment-890">
+		<article id="comment-890" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./JavaScript Inheritance Patterns by David Shariff_files/033a6a72eee81d6b048bed720faef4ee" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn"><a href="http://www.code-sample.com/" rel="external nofollow" class="url">Anil</a></span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-inheritance-patterns/#comment-890"><time pubdate="" datetime="2015-11-03T13:15:41+00:00">03/11/2015 at 1:15 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>It might help to others.<br>
+Learn Object Oriented JavaScript now, using secure and intelligent solutions. <a href="http://goo.gl/LMsIaE" rel="nofollow">http://goo.gl/LMsIaE</a></p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-inheritance-patterns/?replytocom=890#respond" onclick="return addComment.moveForm(&quot;comment-890&quot;, &quot;890&quot;, &quot;respond&quot;, &quot;28&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-890 -->
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://cssphp.space/javascript-understanding-a-simple-return-this-in-transit-js/" rel="external nofollow" class="url">javascript - understanding a simple return this in transit.js - CSS PHP</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="https://www.sitepoint.com/node-js-best-practices-from-the-node-gurus/" rel="external nofollow" class="url">10 Node.js Best Practices: Enlightenment from the Node Gurus</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="https://pallaviteli.wordpress.com/2017/03/15/different-inheritance-patterns-in-javascript/" rel="external nofollow" class="url">Different inheritance patterns in JavaScript |</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://www.codingblog.cn/blog/89020.html" rel="external nofollow" class="url">批评我的原型继承模式[关闭] – CodingBlog</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-1677">
+		<article id="comment-1677" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./JavaScript Inheritance Patterns by David Shariff_files/67ee6440a8a064b4f0b48b26fbc53a1f" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn"><a href="https://www.onlineinterviewquestions.com/" rel="external nofollow" class="url">Sharad</a></span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-inheritance-patterns/#comment-1677"><time pubdate="" datetime="2018-04-24T22:26:13+00:00">24/04/2018 at 10:26 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Great Article, This will help others to Understand the inheritance in Javascript.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-inheritance-patterns/?replytocom=1677#respond" onclick="return addComment.moveForm(&quot;comment-1677&quot;, &quot;1677&quot;, &quot;respond&quot;, &quot;28&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1677 -->
+	</li><!-- #comment-## -->
+	</ol>
+
+	
+</div><!-- #comments -->
+					<div class="comments">			<div id="respond" class="comment-respond">
+				<h3 id="reply-title" class="comment-reply-title">Leave a Reply <small><a rel="nofollow" id="cancel-comment-reply-link" href="http://davidshariff.com/blog/javascript-inheritance-patterns/#respond" style="display:none;">Cancel reply</a></small></h3>
+									<form action="http://davidshariff.com/blog/wp-comments-post.php" method="post" id="commentform" class="comment-form">
+																			<p class="comment-notes">Your email address will not be published. Required fields are marked <span class="required">*</span></p>							<p class="comment-form-author"><label for="author">Name <span class="required">*</span></label> <input id="author" name="author" type="text" value="" size="30" aria-required="true"></p>
+<p class="comment-form-email"><label for="email">Email <span class="required">*</span></label> <input id="email" name="email" type="text" value="" size="30" aria-required="true"></p>
+<p class="comment-form-url"><label for="url">Website</label> <input id="url" name="url" type="text" value="" size="30"></p>
+<p class="cptch_block"><label>[Spam Check] What is: <span class="required"> *</span></label><br>		<input type="hidden" name="cptch_result" value="35I=">
+		<input type="hidden" name="cptch_time" value="1531712128">
+		<input type="hidden" value="Version: 4.1.2">
+		5 + <input id="cptch_input" class="cptch_input" type="text" autocomplete="off" name="cptch_number" value="" maxlength="2" size="2" aria-required="true" required="required" style="margin-bottom:0;display:inline;font-size: 12px;width: 40px;"> =  fourteen</p>												<p class="comment-form-comment"><label for="comment">Comment</label> <textarea id="comment" name="comment" cols="45" rows="8" aria-required="true"></textarea></p>						<p class="form-allowed-tags">You may use these <abbr title="HyperText Markup Language">HTML</abbr> tags and attributes:  <code>&lt;a href="" title=""&gt; &lt;abbr title=""&gt; &lt;acronym title=""&gt; &lt;b&gt; &lt;blockquote cite=""&gt; &lt;cite&gt; &lt;code&gt; &lt;del datetime=""&gt; &lt;em&gt; &lt;i&gt; &lt;q cite=""&gt; &lt;strike&gt; &lt;strong&gt; </code></p>						<p class="form-submit">
+							<input name="submit" type="submit" id="submit" value="Post Comment">
+							<input type="hidden" name="comment_post_ID" value="28" id="comment_post_ID">
+<input type="hidden" name="comment_parent" id="comment_parent" value="0">
+						</p>
+											</form>
+							</div><!-- #respond -->
+			</div>			
+<nav class="pagination">
+  <span class="prev">
+    <a href="http://davidshariff.com/blog/" class="back_to_blog">←&nbsp;&nbsp;&nbsp;read more</a>
+  </span>
+</nav>
+
+</section><!-- #main -->
+
+<script data-cfasync="false" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+
+<script type="text/javascript" charset="utf-8">
+
+
+    $('.comment code').each(function() {
+        var that = $(this),
+            parent = that.parent()[0];
+        if (parent && parent.nodeName.toLowerCase() !== 'pre') {
+             that.wrap('<pre class="language-javascript"></pre>');
+        }
+    });
+
+    
+    $('.comment pre').each(function() {
+        var that = $(this),
+            child = that.children()[0];
+        if (child && child.nodeName.toLowerCase() !== 'code') {
+             that.addClass('language-javascript');
+             that.html('<code>' + $(this).html() + '</code>');
+        }
+    });
+
+</script>
+
+<script src="./JavaScript Inheritance Patterns by David Shariff_files/prism.js.下载"></script>
+		
+			
+
+<script type="text/javascript">
+  
+  jQuery(document).ready(function($) {
+    $("#also-read-items li").hover(
+      function() {
+        $(this).css('color', 'white');
+        $(this).css('background-color', '#a1e69e');
+        $(this).find('.link_kudo').css('border', '3px solid white');
+      },
+      function() {
+        $(this).css('color', '#777');
+        $(this).css('background-color', 'white');
+        $(this).find('.link_kudo').css('border', '3px solid #777');
+      }
+    );
+  });
+</script></body></html>

@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<!-- saved from url=(0079)http://davidshariff.com/blog/javascript-scope-chain-and-closures/#first-article -->
+<html lang="en-US" class="no-js"><!--<![endif]--><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.5, minimum-scale=0.5">
+		<title>Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff</title>
+		<link rel="profile" href="http://gmpg.org/xfn/11">
+		<link rel="stylesheet" type="text/css" media="all" href="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/style.css">
+                <link rel="stylesheet" type="text/css" media="all" href="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/prism.css">
+		<link rel="pingback" href="http://davidshariff.com/blog/xmlrpc.php">
+		<link rel="shortcut icon" href="http://davidshariff.com/blog/wp-content/themes/svbtle/images/favicon.ico">
+		<!--[if lt IE 9]>
+			<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+		<![endif]-->
+		<script type="text/javascript" async="" src="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/ga.js.下载"></script><script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-4668256-3']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+		<!-- styles that need access to server vars -->
+		<style>
+		blockquote {
+		    border-color: #a1e69e;
+		}
+		figure.logo,
+		aside.alsoby li a:hover,
+		aside.kudo.complete span.circle {
+		    background-color: #a1e69e;
+		}
+		section.preview header#begin h2,
+		ul#user_meta a:hover,
+		nav.pagination span.next a,
+		nav.pagination span.prev a,
+		.comment-awaiting-moderation,
+		header#sidebar h1 span {
+		    color: #a1e69e; 
+		}
+		ul#user_meta a:hover,
+		nav.pagination span.next a,
+		nav.pagination span.prev a {
+		    border-color: #a1e69e;
+		}
+		::-moz-selection {
+		    background: #a1e69e;
+		    color: #fff;
+		    text-shadow: none;
+		}
+		::selection {
+		    background: #a1e69e;
+		    color: #fff;
+		    text-shadow: none;
+		}
+		.entry-content a {
+		    color: #a1e69e;
+		    border-bottom: none;
+		}
+		</style>
+		
+		<link rel="alternate" type="application/rss+xml" title="David Shariff » Identifier Resolution and Closures in the JavaScript Scope Chain Comments Feed" href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/feed/">
+<link rel="stylesheet" id="cptch_stylesheet-css" href="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/style(1).css" type="text/css" media="all">
+<script type="text/javascript" src="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/jquery.js.下载"></script>
+<script type="text/javascript" src="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/jquery-migrate.min.js.下载"></script>
+<script type="text/javascript" src="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/comment-reply.min.js.下载"></script>
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://davidshariff.com/blog/xmlrpc.php?rsd">
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://davidshariff.com/blog/wp-includes/wlwmanifest.xml"> 
+<link rel="prev" title="What is the Execution Context &amp; Stack in JavaScript?" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/">
+<link rel="next" title="Chaining Variable Assignments in JavaScript: Words of Caution" href="http://davidshariff.com/blog/chaining-variable-assignments-in-javascript-words-of-caution/">
+<meta name="generator" content="WordPress 3.6">
+<link rel="canonical" href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/">
+<link rel="shortlink" href="http://davidshariff.com/blog/?p=271">
+<meta name="description" content="Identifier Resolution and Closures in the JavaScript Scope Chain - From my previous post, we now know that every function has an associated execution context that contains a variable object [VO], which is composed of all ...">
+<style type="text/css">
+figure.logo a, aside#logo div a, aside.kudo.complete span.circle{background-image: url();}
+    </style>
+		
+	</head>
+	<body class="single single-post postid-271 single-format-standard" style="">
+
+		<header id="sidebar">
+			<h1><a href="http://davidshariff.com/"><span>David</span> Shariff</a></h1>
+			<h2><a href="http://davidshariff.com/blog/">Manage the UI Platform Team @ Amazon.com</a></h2>
+			<a href="https://twitter.com/davidshariff" class="twitter-follow-button" data-size="small" data-show-count="true">Follow @davidshariff</a><script async="" src="http://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+			
+<div class="amazon-hire">
+        <p>I'm hiring! Send your resumé to:</p>
+        <p><span>primenow-hiring@amazon.com</span></p>
+</div>
+
+			<h3>Previously at <a href="http://us.yahoo.com/">Yahoo</a>, <a href="https://www.agilemarkets.com/">RBS</a>, <a href="http://richi.com/">Richi</a> and <a href="http://trendmicro.com/">Trend Micro</a>.</h3>
+
+			<ul id="user_nav">
+			
+				<div class="menu-links-container"><ul id="menu-links" class="menu"><li id="menu-item-653" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-653"><a title="Blog Homepage" href="http://davidshariff.com/blog">Blog Homepage</a></li>
+<li id="menu-item-654" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-654"><a href="https://github.com/davidshariff/">View my Github</a></li>
+<li id="menu-item-681" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-681"><a href="http://www.linkedin.com/in/dshariff">See my LinkedIn</a></li>
+</ul></div>				
+						
+		
+				
+		  </ul>
+
+<div class="employer-disclaimer">
+Views are my own, and don't represent those of my employer.
+</div>
+
+		</header>
+
+		
+		<section id="river" role="main">
+        
+        
+
+	
+			<div id="first-article">
+			<article id="271" class="post">
+
+				<h2 class="entry-title">	<a href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/#first-article" class="no-link" title="Permalink to Identifier Resolution and Closures in the JavaScript Scope Chain" rel="bookmark">Identifier Resolution and Closures in the JavaScript Scope Chain</a>
+
+</h2>
+
+									<div class="entry-content">
+						<p>From my <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/">previous post</a>, we now know that every function has an associated <code><a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/">execution context</a></code> that contains a <code><a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#ao">variable object [VO]</a></code>, which is composed of all the variables, functions and parameters defined inside that given local function.<span id="more-271"></span></p>
+<p>The <code>scope chain</code> property of each <code><a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/">execution context</a></code> is simply a collection of the current <code>context's</code> <code><a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#ao">[VO]</a></code> + all parent’s lexical <code><a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#ao">[VO]</a></code>s.</p>
+<pre>Scope = VO + All Parent VOs
+Eg: scopeChain = [ [VO] + [VO1] + [VO2] + [VO n+1] ];</pre>
+<h2>Determining a Scope Chain’s Variable Objects [VO]s</h2>
+<p>We now know that the first <code>[VO]</code> of the <code>scope chain</code> belongs to the current <code><a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/">execution context</a></code>, and we can find the remaining parent [VO]s by looking at the parent context’s <code>scope chain</code>:</p>
+<pre class=" line-numbers language-javascript"><code class=" language-javascript"><span class="token keyword">function</span> <span class="token function">one<span class="token punctuation">(</span></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+
+    <span class="token function">two<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">function</span> <span class="token function">two<span class="token punctuation">(</span></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+
+        <span class="token function">three<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">function</span> <span class="token function">three<span class="token punctuation">(</span></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token function">alert<span class="token punctuation">(</span></span><span class="token string">'I am at function three'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+    <span class="token punctuation">}</span>
+
+<span class="token punctuation">}</span>
+
+<span class="token function">one<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code>
+</pre>
+<p><img class="alignnone size-full wp-image-299 left" title="stack1" src="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/stack14.jpg" alt="" width="378" height="300"></p>
+<p>The example is straight forward, starting from the global context we call <code>one()</code>, <code>one()</code> calls <code>two()</code>, which in turn calls <code>three()</code>, thus alerting that it is at function three. The image above shows the call stack at function <code>three</code> at the time <code>alert('I am at function three')</code> is fired. We can see that the <code>scope chain</code> at this point in time looks as follows:</p>
+<pre>three() Scope Chain = [ [three() VO] + [two() VO] + [one() VO] + [Global VO] ];</pre>
+<h2>Lexical Scope</h2>
+<p>An important feature of JavaScript to note, is that the interpreter uses <code>Lexical Scoping</code>, as opposed to<a href="http://en.wikipedia.org/wiki/Scope_(computer_science)#Dynamic_scoping"> Dynamic Scoping</a>. This is just a complicated way of saying all inner functions, are statically (lexically) bound to the parent context in which the inner function was physically defined in the program code.</p>
+<p>In our previous example above, it does not matter in which sequence the inner functions are called. <code>three()</code> will always be statically bound to <code>two()</code>, which in turn will always be bound to <code>one()</code> and so on and so forth. This gives a chaining effect where all inner functions can access the outer functions <code>VO</code> through the statically bound <code>Scope Chain</code>.</p>
+<p>This <code>lexical scope</code> is the source of confusion for many developers. We know that every invocation of a function will create a new <code>execution context</code> and associated <code>VO</code>, which holds the values of variables evaluated in the current context. </p>
+<p>It is this dynamic, runtime evaluation of the <code>VO</code> paired with the lexical (static) defined scope of each context that leads unexpected results in program behaviour. Take the following classic example:</p>
+<pre class=" line-numbers left no-b language-javascript"><code class=" language-javascript"><span class="token keyword">var</span> myAlerts <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">var</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> <span class="token number">5</span><span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    myAlerts<span class="token punctuation">.</span><span class="token function">push<span class="token punctuation">(</span></span>
+        <span class="token keyword">function</span> <span class="token function">inner<span class="token punctuation">(</span></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token function">alert<span class="token punctuation">(</span></span>i<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+myAlerts<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // 5
+</span>myAlerts<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // 5
+</span>myAlerts<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // 5
+</span>myAlerts<span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // 5
+</span>myAlerts<span class="token punctuation">[</span><span class="token number">4</span><span class="token punctuation">]</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // 5</span><span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code>
+</pre>
+<p>At first glance, those new to JavaScript would assume <code>alert(i);</code> to be the value of <code>i</code> on each increment where the function was physically defined in the source code, alerting 1, 2, 3, 4 and 5 respectively. </p>
+<p>This is the most common point of confusion. Function <code>inner</code> was created in the global context, therefore its scope chain is statically bound to the global context.</p>
+<p>Lines 11 ~ 15 invoke <code>inner()</code>, which looks in <code>inner.ScopeChain</code> to resolve <code>i</code>, which is located in the <code>global</code> context. At the time of each invocation, <code>i</code>, has already been incremented to 5, giving the same result every time <code>inner()</code> is called. The statically bound scope chain, which holds <code>[VOs]</code> from each <code>context</code> containing live variables, often catches developers by surprise.</p>
+<h2>Resolving the value of variables</h2>
+<p>The following example alerts the value of variables <code>a</code>, <code>b</code> and <code>c</code>, which gives us a result of 6.</p>
+<pre class=" line-numbers no-b language-javascript"><code class=" language-javascript">​<span class="token keyword">function</span> <span class="token function">one<span class="token punctuation">(</span></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+
+    <span class="token keyword">var</span> a <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+    <span class="token function">two<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">function</span> <span class="token function">two<span class="token punctuation">(</span></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+
+        <span class="token keyword">var</span> b <span class="token operator">=</span> <span class="token number">2</span><span class="token punctuation">;</span>
+        <span class="token function">three<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">function</span> <span class="token function">three<span class="token punctuation">(</span></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+
+            <span class="token keyword">var</span> c <span class="token operator">=</span> <span class="token number">3</span><span class="token punctuation">;</span>
+            <span class="token function">alert<span class="token punctuation">(</span></span>a <span class="token operator">+</span> b <span class="token operator">+</span> c<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // 6
+</span>
+        <span class="token punctuation">}</span>
+
+    <span class="token punctuation">}</span>
+
+<span class="token punctuation">}</span>
+
+<span class="token function">one<span class="token punctuation">(</span></span><span class="token punctuation">)</span>​<span class="token punctuation">;</span>​<span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code>
+</pre>
+<p>Line 14 is intriguing, at first glance it seems that <code>a</code> and <code>b</code> are not “inside” function three, so how can this code still work? To understand how the interpreter evaluates this code, we need to look at the scope chain of function three at the time line 14 was executed:</p>
+<p><img class="alignnone size-full wp-image-372" title="scopechain1" src="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/scopechain1.png" alt="" width="600" height="150"></p>
+<p>When the interpreter executes line 14: <code>alert(a + b + c)</code>, it resolves <code>a</code> first by looking into the scope chain and checking the first variable object, <code>three's [VO]</code>. It checks to see if <code>a</code> exists inside <code>three's [VO]</code> but can not find any property with that name, so moves on to check the next <code>[VO]</code>.</p>
+<p>The interpreter keeps checking each <code>[VO]</code> in sequence for the existence of the variable name, in which case the value will be returned to the original evaluated code, or the program will throw a <code>ReferenceError</code> if none is found. Therefore, given the example above, you can see that <code>a</code>, <code>b</code> and <code>c</code> are all resolvable given function three’s scope chain.</p>
+<h2>How does this work with closures?</h2>
+<p>In JavaScript, closures are often regarded as some sort of magical unicorn that only advanced developers can really understand, but truth be told it is just a simple understanding of the scope chain. A closure, as <a href="http://javascript.crockford.com/private.html">Crockford</a> says, is simply:</p>
+<blockquote><p>An inner function always has access to the vars and parameters of its outer function, even after the outer function has returned…</p></blockquote>
+<p>The code below is an example of a closure:</p>
+<pre class=" line-numbers language-javascript"><code class=" language-javascript"><span class="token keyword">function</span> <span class="token function">foo<span class="token punctuation">(</span></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">var</span> a <span class="token operator">=</span> <span class="token string">'private variable'</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> <span class="token keyword">function</span> <span class="token function">bar<span class="token punctuation">(</span></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token function">alert<span class="token punctuation">(</span></span>a<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">var</span> callAlert <span class="token operator">=</span> <span class="token function">foo<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token function">callAlert<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // private variable</span><span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code>
+</pre>
+<p>The <code>global context</code> has a function named <code>foo()</code> and a variable named <code>callAlert</code>, which holds the returned value of <code>foo()</code>. What often surprises and confuses developers is that the private variable, <code>a</code>, is still available even after <code>foo()</code> has finished executing.</p>
+<p>However, if we look at each of the context in detail, we will see the following:</p>
+<pre class=" line-numbers left no-b language-javascript"><code class=" language-javascript"><span class="token comment" spellcheck="true">// Global Context when evaluated
+</span>global<span class="token punctuation">.</span>VO <span class="token operator">=</span> <span class="token punctuation">{</span>
+    foo<span class="token punctuation">:</span> pointer to <span class="token function">foo<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    callAlert<span class="token punctuation">:</span> returned value of global<span class="token punctuation">.</span>VO<span class="token punctuation">.</span>foo
+    scopeChain<span class="token punctuation">:</span> <span class="token punctuation">[</span>global<span class="token punctuation">.</span>VO<span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+<span class="token comment" spellcheck="true">
+// Foo Context when evaluated
+</span>foo<span class="token punctuation">.</span>VO <span class="token operator">=</span> <span class="token punctuation">{</span>
+    bar<span class="token punctuation">:</span> pointer to <span class="token function">bar<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    a<span class="token punctuation">:</span> <span class="token string">'private variable'</span><span class="token punctuation">,</span>
+    scopeChain<span class="token punctuation">:</span> <span class="token punctuation">[</span>foo<span class="token punctuation">.</span>VO<span class="token punctuation">,</span> global<span class="token punctuation">.</span>VO<span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+<span class="token comment" spellcheck="true">
+// Bar Context when evaluated
+</span>bar<span class="token punctuation">.</span>VO <span class="token operator">=</span> <span class="token punctuation">{</span>
+    scopeChain<span class="token punctuation">:</span> <span class="token punctuation">[</span>bar<span class="token punctuation">.</span>VO<span class="token punctuation">,</span> foo<span class="token punctuation">.</span>VO<span class="token punctuation">,</span> global<span class="token punctuation">.</span>VO<span class="token punctuation">]</span>
+<span class="token punctuation">}</span><span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code>
+</pre>
+<p>Now we can see by invoking <code>callAlert()</code>, we get the function <code>foo()</code>, which returns the pointer to <code>bar()</code>. On entering <code>bar()</code>, <code>bar.VO.scopeChain</code> is <code>[bar.VO, foo.VO, global.VO]</code>.</p>
+<p>By alerting <code>a</code>, the interpreter checks the first VO in the <code>bar.VO.scopeChain</code> for a property named <code>a</code> but can not find a match, so promptly moves on to the next VO, <code>foo.VO</code>.</p>
+<p>It checks for the existence of the property and this time finds a match, returning the value back to the <code>bar</code> context, which explains why the <code>alert</code> gives us <code>'private variable'</code> even though <code>foo()</code> had finished executing sometime ago.</p>
+<p>By this point in the article, we have covered the details of the <code>scope chain</code> and its <code>lexical</code> environment, along with how <code>closures</code> and <code>variable resolution</code> work. The rest of this article looks at some interesting situations in relation to those covered above.</p>
+<h2>Wait, how does the prototype chain affect variable resolution?</h2>
+<p>JavaScript is <a title="JavaScript Inheritance Patterns" href="http://davidshariff.com/blog/javascript-inheritance-patterns/">prototypal</a> by nature and almost everything in the language, except for <code>null</code> and <code>undefined</code>, are <code>objects</code>. When trying to access a property on an <code>object</code>, the interpreter will try to resolve it by looking for the existence of the property in the <code>object</code>. If it can’t find the property, it will continue to look up the <a title="JavaScript Inheritance Patterns" href="http://davidshariff.com/blog/javascript-inheritance-patterns/">prototype chain</a>, which is an inherited chain of objects, until it finds the property, or traversed to the end of the chain.</p>
+<p>This leads to an interesting question, does the interpreter resolve an object property using the <code>scope chain</code> or <code>prototype chain</code> first ? It uses both. When trying to resolve a property or identifier, the <code>scope chain</code> will be used first to locate the <code>object</code>. Once the <code>object</code> has been found, the <code>prototype chain</code> of that <code>object</code> will then be traversed looking for the property name. Let’s look at an example:</p>
+<pre class=" line-numbers language-javascript"><code class=" language-javascript"><span class="token keyword">var</span> bar <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">function</span> <span class="token function">foo<span class="token punctuation">(</span></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+
+    bar<span class="token punctuation">.</span>a <span class="token operator">=</span> <span class="token string">'Set from foo()'</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">return</span> <span class="token keyword">function</span> <span class="token function">inner<span class="token punctuation">(</span></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token function">alert<span class="token punctuation">(</span></span>bar<span class="token punctuation">.</span>a<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+<span class="token punctuation">}</span>
+
+<span class="token function">foo<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // 'Set from foo()'</span><span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code>
+</pre>
+<p>Line 5 creates the property <code>a</code> on the global object <code>bar</code>, and sets its value to <code>'Set from foo()'</code>. The interpreter looks into the <code>scope chain</code> and as expected finds <code>bar.a</code> in the <code>global context</code>. Now, lets consider the following:</p>
+<pre class=" line-numbers language-javascript"><code class=" language-javascript"><span class="token keyword">var</span> bar <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">function</span> <span class="token function">foo<span class="token punctuation">(</span></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+
+    Object<span class="token punctuation">.</span>prototype<span class="token punctuation">.</span>a <span class="token operator">=</span> <span class="token string">'Set from prototype'</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">return</span> <span class="token keyword">function</span> <span class="token function">inner<span class="token punctuation">(</span></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token function">alert<span class="token punctuation">(</span></span>bar<span class="token punctuation">.</span>a<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+<span class="token punctuation">}</span>
+
+<span class="token function">foo<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // 'Set from prototype()'</span><span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code>
+</pre>
+<p>At runtime, we invoke <code>inner()</code>, which tries to resolve <code>bar.a</code> by looking in its scope chain for the existence of <code>bar</code>. It finds <code>bar</code> in the global context, and proceeds to search <code>bar</code> for a property named <code>a</code>. However, <code>a</code> was never set on <code>bar</code>, so the interpreter traverses the object’s prototype chain and finds <code>a</code> was set on <code>Object.prototype</code>.</p>
+<p>It is this exact behavior which explains identifier resolution; locate the <code>object</code> in the <code>scope chain</code>, then proceed up the object’s <code>prototype chain</code> until the property is found, or returned <code>undefined</code>.</p>
+<h2>When to use Closures?</h2>
+<p>Closures are a powerful concept given to JavaScript and some of the most common situations to use them are:</p>
+<ul class="no-list-type">
+<li>
+<h4>Encapsulation</h4>
+<p>Allows us to hide the implementation details of a context from outside scopes, while exposing a controlled public interface. This is commonly referred to as the <a href="http://addyosmani.com/resources/essentialjsdesignpatterns/book/#modulepatternjavascript">module pattern</a> or <a href="http://addyosmani.com/resources/essentialjsdesignpatterns/book/#revealingmodulepatternjavascript">revealing module pattern</a>.</p></li>
+<li>
+<h4>Callbacks</h4>
+<p>Perhaps one of the most powerful uses for closures are callbacks. JavaScript, in the browser, typically runs in a single threaded event loop, blocking other events from starting until one event has finished. Callbacks allow us to defer the invocation of a function, typically in response to an event completing, in a non-blocking manner. An example of this is when making an AJAX call to the server, using a callback to handle to response, while still maintaining the bindings in which it was created.</p></li>
+<li>
+<h4>Closures as arguments</h4>
+<p>We can also pass closures as arguments to a function, which is a powerful functional paradigm for creating more graceful solutions for complex code. Take for example a minimum sort function. By passing closures as parameters, we could define the implementation for different types of data sorting, while still reusing a single function body as a schematic.</p></li>
+</ul>
+<h2>When not to use Closures ?</h2>
+<p>Although closures are powerful, they should be used sparingly due to some performance concerns:</p>
+<ul class="no-list-type">
+<li>
+<h4>Large scope lengths</h4>
+<p>Multiple nested functions are a typical sign that you might run into some performance issues. Remember, every time you need to evaluate a variable, the Scope Chain must be traversed to find the identifier, so it goes without saying that the further down the chain the variable is defined, the longer to lookup time.</p></li>
+</ul>
+<h2>Garbage collection</h2>
+<p>JavaScript is a <code>garbage collected</code> language, which means developers generally don’t have to worry about memory management, unlike lower level programming languages. However, this automatic garbage collection often leads developers application to suffer from poor performance and memory leaks.</p>
+<p>Different JavaScript engines implement garbage collection slightly different, since ECMAScript does not define how the implementation should be handled, but the same philosophy can apply across engines when trying to create high performance, leak free JavaScript code. Generally speaking, the garbage collector will try to free the memory of objects when they can not be referenced by any other live object running in the program, or are unreachable.</p>
+<h3>Circular references</h3>
+<p>This leads us to closures, and the possibility of circular references in a program, which is a term used to describe a situation where one object references another object, and that object points back to the first object. Closures are especially susceptible to leaks, remember that an inner function can reference a variable defined further up the scope chain even after the parent has finished executing and returned. Most JavaScript engines handle these situations quite well (damn you IE), but it’s still worth noting and taking into consideration when doing your development.</p>
+<p>For older versions of IE, referencing a DOM element would often cause you memory leaks. Why? In IE, the JavaScript (JScript ?) engine and DOM both have their own individual garbage collector. So when referencing a DOM element from JavaScript, the native collector hands off to the DOM and the DOM collector points back to native, resulting in neither collector knowing about the circular reference.</p>
+<h2>Summary</h2>
+<p>From working with many developers over the past few years, I often found that the concepts of <code>scope chain</code> and <code>closures</code> were known about, but not truly understood in detail. I hope this article has helped to take you from knowing the basic concept, to an understanding in more detail and depth. </p>
+<p>Going forward, you should be armed with all the knowledge you need to determine how the resolution of variables, in any situation, works when writing your JavaScript. Happy coding !</p>
+											</div><!-- .entry-content -->
+				
+			</article><!-- #post-## -->
+			</div>
+
+		
+	
+
+
+<div class="yarpp-related">
+<h2 id="also-read-title">Related Posts...</h2><ul id="also-read-items">
+<li style="color: rgb(119, 119, 119); background-color: white;"><a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/" rel="bookmark" title="What is the Execution Context &amp; Stack in JavaScript?"><h3>What is the Execution Context &amp; Stack in JavaScript?</h3><p class="link_kudo" style="border: 3px solid rgb(119, 119, 119);">1</p></a></li>
+<li style="color: rgb(119, 119, 119); background-color: white;"><a href="http://davidshariff.com/blog/javascript-inheritance-patterns/" rel="bookmark" title="JavaScript Inheritance Patterns"><h3>JavaScript Inheritance Patterns</h3><p class="link_kudo" style="border: 3px solid rgb(119, 119, 119);">2</p></a></li>
+<li style="color: rgb(119, 119, 119); background-color: white;"><a href="http://davidshariff.com/blog/javascripts-undefined-explored/" rel="bookmark" title="JavaScript’s Undefined Explored"><h3>JavaScript’s Undefined Explored</h3><p class="link_kudo" style="border: 3px solid rgb(119, 119, 119);">3</p></a></li>
+<li style="color: rgb(119, 119, 119); background-color: white;"><a href="http://davidshariff.com/blog/chaining-variable-assignments-in-javascript-words-of-caution/" rel="bookmark" title="Chaining Variable Assignments in JavaScript: Words of Caution"><h3>Chaining Variable Assignments in JavaScript: Words of Caution</h3><p class="link_kudo" style="border: 3px solid rgb(119, 119, 119);">4</p></a></li>
+<li style="color: rgb(119, 119, 119); background-color: white;"><a href="http://davidshariff.com/blog/futures-and-promises-in-javascript/" rel="bookmark" title="Futures and Promises in JavaScript"><h3>Futures and Promises in JavaScript</h3><p class="link_kudo" style="border: 3px solid rgb(119, 119, 119);">5</p></a></li>
+</ul>
+</div>
+
+<div id="comments">
+	<h2>
+		Comments
+	</h2>
+
+	
+	<ol class="commentlist unstyled">
+			<li class="comment even thread-even depth-1" id="li-comment-126">
+		<article id="comment-126" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/4e270372b1330e30f31d3a4eb5799986" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">mauro77</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/#comment-126"><time pubdate="" datetime="2013-01-19T11:55:03+00:00">19/01/2013 at 11:55 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Nice and clear. Good job !</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/?replytocom=126#respond" onclick="return addComment.moveForm(&quot;comment-126&quot;, &quot;126&quot;, &quot;respond&quot;, &quot;271&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-126 -->
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-odd thread-alt depth-1" id="li-comment-128">
+		<article id="comment-128" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/2157093f726299921af278763677614a" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">jackie</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/#comment-128"><time pubdate="" datetime="2013-01-24T10:06:41+00:00">24/01/2013 at 10:06 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>thank u again for another great article!</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/?replytocom=128#respond" onclick="return addComment.moveForm(&quot;comment-128&quot;, &quot;128&quot;, &quot;respond&quot;, &quot;271&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-128 -->
+	</li><!-- #comment-## -->
+	<li class="comment even thread-even depth-1" id="li-comment-136">
+		<article id="comment-136" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/249e198b008d977df2f570f137a8efb2" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">zhuang</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/#comment-136"><time pubdate="" datetime="2013-02-05T16:50:15+00:00">05/02/2013 at 4:50 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Really appreciate for your article</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/?replytocom=136#respond" onclick="return addComment.moveForm(&quot;comment-136&quot;, &quot;136&quot;, &quot;respond&quot;, &quot;271&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-136 -->
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-odd thread-alt depth-1" id="li-comment-189">
+		<article id="comment-189" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/f8c6c9a889b4b593ce9c846c5f022de8" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Willson</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/#comment-189"><time pubdate="" datetime="2013-04-26T00:50:22+00:00">26/04/2013 at 12:50 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>This is another awesome article – thank you for so clearly explaining how scope chains are generated and they interact with the prototype chain!</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/?replytocom=189#respond" onclick="return addComment.moveForm(&quot;comment-189&quot;, &quot;189&quot;, &quot;respond&quot;, &quot;271&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-189 -->
+	</li><!-- #comment-## -->
+	<li class="comment even thread-even depth-1" id="li-comment-191">
+		<article id="comment-191" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/93259664fe2a344b48e1ab8c64520de8" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">wangtno</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/#comment-191"><time pubdate="" datetime="2013-04-27T20:18:31+00:00">27/04/2013 at 8:18 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>thanks! I have been looking for a clear explaination of closure for a long time.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/?replytocom=191#respond" onclick="return addComment.moveForm(&quot;comment-191&quot;, &quot;191&quot;, &quot;respond&quot;, &quot;271&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-191 -->
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-odd thread-alt depth-1" id="li-comment-193">
+		<article id="comment-193" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/dd0b1109599d36f78de87be5eec9cb03" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Stephan</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/#comment-193"><time pubdate="" datetime="2013-04-29T18:55:27+00:00">29/04/2013 at 6:55 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Maybe I am wrong, but to my opinion the foo() context VO is empty (foo has no params, no vars, no function decl.), so the line :</p>
+<p>“Line 5 creates the property a on the global object bar, and sets its value to ‘Set from foo()’. The interpreter looks into the scope chain and as expected finds bar.a in the foo context. Now, lets consider the following:”</p>
+<p>–&gt; should be:</p>
+<p>“Line 5 creates the property a on the global object bar, and sets its value to ‘Set from foo()’. The interpreter looks into the scope chain and as expected finds bar.a in the GLOBAL context. Now, lets consider the following:”</p>
+<p>—<br>
+Regards Stephan</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/?replytocom=193#respond" onclick="return addComment.moveForm(&quot;comment-193&quot;, &quot;193&quot;, &quot;respond&quot;, &quot;271&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-193 -->
+	<ul class="children">
+	<li class="comment byuser comment-author-admin bypostauthor even depth-2" id="li-comment-194">
+		<article id="comment-194" class="comment row">
+			<div class="comment-author-avatar span1 offset1">
+				<img alt="" src="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/85845b4a20e7f101d29feb375f455630" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span6">
+				<div class="comment-author vcard">
+					<span class="fn">David Shariff</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/#comment-194"><time pubdate="" datetime="2013-04-29T19:09:39+00:00">29/04/2013 at 7:09 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span6">
+				<p>@Stephen,</p>
+<p>Good spot, it was a typo, I updated that line <img src="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/icon_smile.gif" alt=":)" class="wp-smiley"> </p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/?replytocom=194#respond" onclick="return addComment.moveForm(&quot;comment-194&quot;, &quot;194&quot;, &quot;respond&quot;, &quot;271&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-194 -->
+	</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://kptek.wordpress.com/2013/05/22/js-execution-context-closures/" rel="external nofollow" class="url">JS Execution Context – Closures | Java</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://www.w473rh34d.com/wordpress/?p=87" rel="external nofollow" class="url">Understanding JavaScript’s scopes | waterhead</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://www.zfanw.com/blog/javascript-closures.html" rel="external nofollow" class="url">JavaScript 闭包 – 陈三笔记</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-even depth-1" id="li-comment-311">
+		<article id="comment-311" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/c0ca4a4ce978e8fdfebc2174f924876a" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Apurv</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/#comment-311"><time pubdate="" datetime="2013-08-23T16:41:08+00:00">23/08/2013 at 4:41 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Correct me if I am wrong. But I don’t think foo’s context VO would be empty. It would contain the definition of inner(). Because, </p>
+<pre>return function inner(){..}</pre>
+<p>is equivalent to</p>
+<pre>var inner = function(){..}
+return inner;</pre>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/?replytocom=311#respond" onclick="return addComment.moveForm(&quot;comment-311&quot;, &quot;311&quot;, &quot;respond&quot;, &quot;271&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-311 -->
+	<ul class="children">
+	<li class="comment byuser comment-author-admin bypostauthor even depth-2" id="li-comment-313">
+		<article id="comment-313" class="comment row">
+			<div class="comment-author-avatar span1 offset1">
+				<img alt="" src="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/85845b4a20e7f101d29feb375f455630" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span6">
+				<div class="comment-author vcard">
+					<span class="fn">David Shariff</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/#comment-313"><time pubdate="" datetime="2013-08-23T18:24:52+00:00">23/08/2013 at 6:24 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span6">
+				<p>@Apurv</p>
+<p>Are you referring to a code example from the blog post? Please provide a little more detail.</p>
+<p>With regards to your code sample, the 2 are not the same. During the “<a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/" rel="nofollow">Creation Stage</a>“:</p>
+<pre class=" language-javascript"><code class=" language-javascript"><span class="token keyword">return</span> <span class="token keyword">function</span> <span class="token function">inner<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">{</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">}</span></code></pre>
+<p>will reference the function inner() but:</p>
+<pre class=" language-javascript"><code class=" language-javascript"><span class="token keyword">var</span> inner <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">}</span>
+<span class="token keyword">return</span> inner<span class="token punctuation">;</span></code></pre>
+<p>at the same stage will be undefined. One is function declaration, the other is an variable assignment.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/?replytocom=313#respond" onclick="return addComment.moveForm(&quot;comment-313&quot;, &quot;313&quot;, &quot;respond&quot;, &quot;271&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-313 -->
+	</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="comment odd alt thread-odd thread-alt depth-1" id="li-comment-319">
+		<article id="comment-319" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/c0ca4a4ce978e8fdfebc2174f924876a" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Apurv</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/#comment-319"><time pubdate="" datetime="2013-08-26T21:31:42+00:00">26/08/2013 at 9:31 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>I was referring to the comment made by Stephan.</p>
+<p>You are right. The statements are not equivalent.</p>
+<p>But, won’t there be a pointer to the function inner created in the foo context’s VO? i.e. foo’s context VO won’t be empty after creation stage has been completed.</p>
+<p>This is wrt Stephan’s comment “Maybe I am wrong, but to my opinion the foo() context VO is empty (foo has no params, no vars, no function decl.)”</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/?replytocom=319#respond" onclick="return addComment.moveForm(&quot;comment-319&quot;, &quot;319&quot;, &quot;respond&quot;, &quot;271&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-319 -->
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://www.davidrogers.id.au/wp/?p=1906" rel="external nofollow" class="url">Execution Contexts and Scope Chains in Javascriptdavidrogers.id.au - blog | davidrogers.id.au – blog</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="comment even thread-even depth-1" id="li-comment-354">
+		<article id="comment-354" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/119e18cc74100c692aa473e5d29d263c" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">tapir</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/#comment-354"><time pubdate="" datetime="2013-11-07T22:16:32+00:00">07/11/2013 at 10:16 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>best explanation <img src="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/icon_smile.gif" alt=":)" class="wp-smiley"> , thanks man</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/?replytocom=354#respond" onclick="return addComment.moveForm(&quot;comment-354&quot;, &quot;354&quot;, &quot;respond&quot;, &quot;271&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-354 -->
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-odd thread-alt depth-1" id="li-comment-371">
+		<article id="comment-371" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/b88052694be62101cd64a8167d057823" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Carter</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/#comment-371"><time pubdate="" datetime="2013-12-02T10:17:41+00:00">02/12/2013 at 10:17 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>This is one of most in depth post on this topic I ever read. Thanks @David for shine on me</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/?replytocom=371#respond" onclick="return addComment.moveForm(&quot;comment-371&quot;, &quot;371&quot;, &quot;respond&quot;, &quot;271&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-371 -->
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://msn4free.com/developersq/doubling-a-returning-function-stops-from-entering-the-nested-function/" rel="external nofollow" class="url">Doubling a returning function stops from entering the nested function | Developers Questions - Msn4Free.com</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="comment even thread-even depth-1" id="li-comment-375">
+		<article id="comment-375" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/c0e2088e1d162f9b9abb036cd1bc6305" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Rick</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/#comment-375"><time pubdate="" datetime="2013-12-12T01:41:50+00:00">12/12/2013 at 1:41 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>What an excellent post.  I’d like to ask an intelligent question but … you answered them.  <img src="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/icon_smile.gif" alt=":)" class="wp-smiley">   (thanks)</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/?replytocom=375#respond" onclick="return addComment.moveForm(&quot;comment-375&quot;, &quot;375&quot;, &quot;respond&quot;, &quot;271&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-375 -->
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-odd thread-alt depth-1" id="li-comment-383">
+		<article id="comment-383" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/f2c683e7dc0c4d4bcc790f87eaa67301" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Robert Green</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/#comment-383"><time pubdate="" datetime="2013-12-25T08:18:59+00:00">25/12/2013 at 8:18 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Great article to explain closures.</p>
+<p>There’s a typo: “none blocking manner” should be “non–blocking manner”.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/?replytocom=383#respond" onclick="return addComment.moveForm(&quot;comment-383&quot;, &quot;383&quot;, &quot;respond&quot;, &quot;271&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-383 -->
+	<ul class="children">
+	<li class="comment byuser comment-author-admin bypostauthor even depth-2" id="li-comment-394">
+		<article id="comment-394" class="comment row">
+			<div class="comment-author-avatar span1 offset1">
+				<img alt="" src="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/85845b4a20e7f101d29feb375f455630" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span6">
+				<div class="comment-author vcard">
+					<span class="fn">David Shariff</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/#comment-394"><time pubdate="" datetime="2014-01-22T04:42:47+00:00">22/01/2014 at 4:42 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span6">
+				<p>Good catch!</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/?replytocom=394#respond" onclick="return addComment.moveForm(&quot;comment-394&quot;, &quot;394&quot;, &quot;respond&quot;, &quot;271&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-394 -->
+	</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://software-engineer.com.au/prototype-javascripts-inheritance-mechanism/" rel="external nofollow" class="url">Prototype – Javascript’s Inheritance Mechanism: Jason Elliott, Senior Web Developer, Melbourne Australia: ASP.NET, PHP, Javascript &amp; CSS</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-even depth-1" id="li-comment-530">
+		<article id="comment-530" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/a15e85dfb03972b3537b1d2b2dd35a6a" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Agradip</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/#comment-530"><time pubdate="" datetime="2014-12-09T17:23:51+00:00">09/12/2014 at 5:23 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Very nice article</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/?replytocom=530#respond" onclick="return addComment.moveForm(&quot;comment-530&quot;, &quot;530&quot;, &quot;respond&quot;, &quot;271&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-530 -->
+	</li><!-- #comment-## -->
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-611">
+		<article id="comment-611" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/54fa827a87db0b47f51df746346d9bd0" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">ankur</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/#comment-611"><time pubdate="" datetime="2015-04-02T03:39:05+00:00">02/04/2015 at 3:39 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>very well explained</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/?replytocom=611#respond" onclick="return addComment.moveForm(&quot;comment-611&quot;, &quot;611&quot;, &quot;respond&quot;, &quot;271&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-611 -->
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-even depth-1" id="li-comment-649">
+		<article id="comment-649" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/d19952b9d6a09f127c1bd0ee628f961c" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">wangrl</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/#comment-649"><time pubdate="" datetime="2015-05-04T17:12:40+00:00">04/05/2015 at 5:12 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Hi! Thanks for your excellent work! I wonder if there is possible to get the JS function’s scope chain by setting hooks inside the V8 engine? If it is, can you telll me the relation function in the source code?</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/?replytocom=649#respond" onclick="return addComment.moveForm(&quot;comment-649&quot;, &quot;649&quot;, &quot;respond&quot;, &quot;271&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-649 -->
+	</li><!-- #comment-## -->
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-793">
+		<article id="comment-793" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/1ac08ce004ce636b159a71592c5292ff" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Sangram</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/#comment-793"><time pubdate="" datetime="2015-08-21T00:12:43+00:00">21/08/2015 at 12:12 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Hi David,</p>
+<p>The exact thing I was looking for !!. Thanks so much.<br>
+If I am not wrong the Scope chain is fundamental in understanding the Asynchronous programming in JavaScript , which is single threaded. Do you have an article to explain  the Asynchronicity in JavaScript <img src="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/icon_smile.gif" alt=":-)" class="wp-smiley">  . I know I am asking for more <img src="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/icon_smile.gif" alt=":-)" class="wp-smiley">  , but simply love the way you put it !! </p>
+<p>Thanks and kind regards,<br>
+S</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/?replytocom=793#respond" onclick="return addComment.moveForm(&quot;comment-793&quot;, &quot;793&quot;, &quot;respond&quot;, &quot;271&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-793 -->
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-even depth-1" id="li-comment-808">
+		<article id="comment-808" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/388a81b5ba3fb41d8a06a4d5cd9ce2dc" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Ian</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/#comment-808"><time pubdate="" datetime="2015-09-10T02:36:26+00:00">10/09/2015 at 2:36 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>aha… this was helpful too…. <a href="http://dmitryfrank.com/articles/js_closures" rel="nofollow">http://dmitryfrank.com/articles/js_closures</a></p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/?replytocom=808#respond" onclick="return addComment.moveForm(&quot;comment-808&quot;, &quot;808&quot;, &quot;respond&quot;, &quot;271&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-808 -->
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://blog.lwxyfer.com/458.html" rel="external nofollow" class="url">闭包、this、回调 等概念 | LWXYFER</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://www.innocodive.com/blog/javascript-scope/" rel="external nofollow" class="url">Javascript Scope</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-1119">
+		<article id="comment-1119" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/bc6dfd1a2e713cd6a93c46e485294b8a" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Aswin</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/#comment-1119"><time pubdate="" datetime="2016-08-16T23:54:44+00:00">16/08/2016 at 11:54 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>var myAlerts = [];</p>
+<p>for (var i = 0; i &lt; 5; i++) {<br>
+    myAlerts.push(<br>
+        function inner() {<br>
+            alert(i);<br>
+        }<br>
+    );<br>
+}</p>
+<p>myAlerts[0](); // 5<br>
+myAlerts[1](); // 5<br>
+myAlerts[2](); // 5<br>
+myAlerts[3](); // 5<br>
+myAlerts[4](); // 5</p>
+<p>I am a little confused with this example since you mentioned the inner function is created in global scope,to be precise how does the push method call deal with the inner function declaration.Is it creating a fresh "inner" function(closure) for every push method call?</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/?replytocom=1119#respond" onclick="return addComment.moveForm(&quot;comment-1119&quot;, &quot;1119&quot;, &quot;respond&quot;, &quot;271&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1119 -->
+	<ul class="children">
+	<li class="comment odd alt depth-2" id="li-comment-1120">
+		<article id="comment-1120" class="comment row">
+			<div class="comment-author-avatar span1 offset1">
+				<img alt="" src="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/bc6dfd1a2e713cd6a93c46e485294b8a" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span6">
+				<div class="comment-author vcard">
+					<span class="fn">Aswin</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/#comment-1120"><time pubdate="" datetime="2016-08-17T00:01:42+00:00">17/08/2016 at 12:01 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span6">
+				<p>Shouldn’t the push call create a new execution context and thus a new inner function each time ?</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/?replytocom=1120#respond" onclick="return addComment.moveForm(&quot;comment-1120&quot;, &quot;1120&quot;, &quot;respond&quot;, &quot;271&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1120 -->
+	<ul class="children">
+	<li class="comment even depth-3" id="li-comment-1474">
+		<article id="comment-1474" class="comment row">
+			<div class="comment-author-avatar span1 offset2">
+				<img alt="" src="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/2f5b3fa26595bc45871213860db4668f" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span5">
+				<div class="comment-author vcard">
+					<span class="fn">Anon</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/#comment-1474"><time pubdate="" datetime="2017-08-18T05:16:36+00:00">18/08/2017 at 5:16 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span5">
+				<p>“Shouldn’t the push call create a new execution context and thus a new inner function each time ?”</p>
+<p>Yes, and it does that. Every time the push method is called it declares a new inner function in its own VO.</p>
+<p>The thing is, every single one of those VO’s (one for every context created during each of the push method calls) share the same parent context. </p>
+<p>That is, despite their VO’s being different, every time the interpreter can’t resolve a name (in this case, “i”) it will go through the scope chain looking for it, and, since all those contexts share the same parents, they will end up finding a reference to the same variable (“i”), declared, in this case, in the global context.</p>
+<p>Cheers.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/?replytocom=1474#respond" onclick="return addComment.moveForm(&quot;comment-1474&quot;, &quot;1474&quot;, &quot;respond&quot;, &quot;271&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1474 -->
+	</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="comment odd alt thread-even depth-1" id="li-comment-1163">
+		<article id="comment-1163" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/28b86e8f63406c65eacdf3edb084132f" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">MirSujat</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/#comment-1163"><time pubdate="" datetime="2016-09-26T18:30:35+00:00">26/09/2016 at 6:30 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Every JS developer must read this… Though it’s late but finally i have find my Anwser….) Thanks</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/?replytocom=1163#respond" onclick="return addComment.moveForm(&quot;comment-1163&quot;, &quot;1163&quot;, &quot;respond&quot;, &quot;271&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1163 -->
+	</li><!-- #comment-## -->
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-1279">
+		<article id="comment-1279" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/75df72e122da71217973ad37fe0f3d1e" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Natasha</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/#comment-1279"><time pubdate="" datetime="2017-01-04T11:50:29+00:00">04/01/2017 at 11:50 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Hi, David!<br>
+I have problems whrn I leave my comments. I follow the rulls but I don’t see my comments in the stack. I have some ideas I want to share.<br>
+Thanks!<br>
+Regards,<br>
+Natasha.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/?replytocom=1279#respond" onclick="return addComment.moveForm(&quot;comment-1279&quot;, &quot;1279&quot;, &quot;respond&quot;, &quot;271&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1279 -->
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-even depth-1" id="li-comment-1282">
+		<article id="comment-1282" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/75df72e122da71217973ad37fe0f3d1e" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Natasha</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/#comment-1282"><time pubdate="" datetime="2017-01-04T12:02:17+00:00">04/01/2017 at 12:02 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Hi, David!<br>
+I found out some moments in this article I’d like to share with you. In what way can I do it besides this forum?<br>
+Thanks!<br>
+Regards,<br>
+Natasha.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/?replytocom=1282#respond" onclick="return addComment.moveForm(&quot;comment-1282&quot;, &quot;1282&quot;, &quot;respond&quot;, &quot;271&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1282 -->
+	</li><!-- #comment-## -->
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-1374">
+		<article id="comment-1374" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/aca8e5a8e4357256dda91376c2c51b23" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">S. Neha</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/#comment-1374"><time pubdate="" datetime="2017-04-04T03:23:42+00:00">04/04/2017 at 3:23 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Hi,</p>
+<p>Can anyone please help me understand this concept  -</p>
+<p>The scope chain property of each execution context is simply a collection of the current context’s [VO] + all parent’s lexical [VO]s..<br>
+but from where does this execution context gets the value of parent’s lexical [VO] ?</p>
+<p>where are all these lexical VO’s stored for reference and as what object ? and how do they store for same constructor having multiple instances ?<br>
+how to context know which scope-chain to refer…</p>
+<p>how will this be explained ? – </p>
+<p>function module(num) {<br>
+	var u=num;<br>
+	return {<br>
+		changeU: function (val) {<br>
+			u=val;<br>
+		},<br>
+		getU: function () {<br>
+			console.log(u);<br>
+		},<br>
+	}<br>
+};</p>
+<p>var a=module(11);<br>
+var b=module(19);</p>
+<p>a.getU();  //11<br>
+b.getU();  //19</p>
+<p>a.changeU(8);</p>
+<p>a.getU(); //8<br>
+b.getU(); //19 — ? shoudn’t it be shared or something….</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/?replytocom=1374#respond" onclick="return addComment.moveForm(&quot;comment-1374&quot;, &quot;1374&quot;, &quot;respond&quot;, &quot;271&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1374 -->
+	<ul class="children">
+	<li class="comment odd alt depth-2" id="li-comment-1543">
+		<article id="comment-1543" class="comment row">
+			<div class="comment-author-avatar span1 offset1">
+				<img alt="" src="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/e8f2f1f9568ee3d5d76a1bf76e9c804f" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span6">
+				<div class="comment-author vcard">
+					<span class="fn">Pradeep</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/#comment-1543"><time pubdate="" datetime="2017-11-05T15:29:09+00:00">05/11/2017 at 3:29 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span6">
+				<p>I Think here a, b and module are three saperate global variables having its own scope chain so there is no interaction between “u” variable of a and b context.</p>
+<p>Thanks for the greate article,<br>
+correct me if am wrong………..</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/?replytocom=1543#respond" onclick="return addComment.moveForm(&quot;comment-1543&quot;, &quot;1543&quot;, &quot;respond&quot;, &quot;271&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1543 -->
+	</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://syndicode.co/2017/10/20/identifier-resolution-in-javascript/" rel="external nofollow" class="url">Identifier resolution in JavaScript</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://www.codingblog.cn/blog/143390.html" rel="external nofollow" class="url">JavaScript中嵌套函数的需求和用途 – CodingBlog</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="comment even thread-even depth-1" id="li-comment-1582">
+		<article id="comment-1582" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/2e5d28d32c7e271430680dccc44fcd74" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Spike</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/#comment-1582"><time pubdate="" datetime="2017-12-24T15:49:46+00:00">24/12/2017 at 3:49 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>good article, thank!</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/?replytocom=1582#respond" onclick="return addComment.moveForm(&quot;comment-1582&quot;, &quot;1582&quot;, &quot;respond&quot;, &quot;271&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1582 -->
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-odd thread-alt depth-1" id="li-comment-1189">
+		<article id="comment-1189" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/e364e1d4336706af58f5c117785eb088" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">anson</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/#comment-1189"><time pubdate="" datetime="2016-10-22T10:11:00+00:00">22/10/2016 at 10:11 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Sorry about typo, the last result should be</p>
+<p> [[Scopes]]:Scopes[1]<br>
+0:Global</p>
+<p>instead of</p>
+<p> [[Scopes]]:Scopes[2]<br>
+0:Global</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/?replytocom=1189#respond" onclick="return addComment.moveForm(&quot;comment-1189&quot;, &quot;1189&quot;, &quot;respond&quot;, &quot;271&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1189 -->
+	</li><!-- #comment-## -->
+	</ol>
+
+	
+</div><!-- #comments -->
+					<div class="comments">			<div id="respond" class="comment-respond">
+				<h3 id="reply-title" class="comment-reply-title">Leave a Reply <small><a rel="nofollow" id="cancel-comment-reply-link" href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/#respond" style="display:none;">Cancel reply</a></small></h3>
+									<form action="http://davidshariff.com/blog/wp-comments-post.php" method="post" id="commentform" class="comment-form">
+																			<p class="comment-notes">Your email address will not be published. Required fields are marked <span class="required">*</span></p>							<p class="comment-form-author"><label for="author">Name <span class="required">*</span></label> <input id="author" name="author" type="text" value="" size="30" aria-required="true"></p>
+<p class="comment-form-email"><label for="email">Email <span class="required">*</span></label> <input id="email" name="email" type="text" value="" size="30" aria-required="true"></p>
+<p class="comment-form-url"><label for="url">Website</label> <input id="url" name="url" type="text" value="" size="30"></p>
+<p class="cptch_block"><label>[Spam Check] What is: <span class="required"> *</span></label><br>		<input type="hidden" name="cptch_result" value="WFrC">
+		<input type="hidden" name="cptch_time" value="1531702664">
+		<input type="hidden" value="Version: 4.1.2">
+		five × 8 =  <input id="cptch_input" class="cptch_input" type="text" autocomplete="off" name="cptch_number" value="" maxlength="2" size="2" aria-required="true" required="required" style="margin-bottom:0;display:inline;font-size: 12px;width: 40px;"></p>												<p class="comment-form-comment"><label for="comment">Comment</label> <textarea id="comment" name="comment" cols="45" rows="8" aria-required="true"></textarea></p>						<p class="form-allowed-tags">You may use these <abbr title="HyperText Markup Language">HTML</abbr> tags and attributes:  <code>&lt;a href="" title=""&gt; &lt;abbr title=""&gt; &lt;acronym title=""&gt; &lt;b&gt; &lt;blockquote cite=""&gt; &lt;cite&gt; &lt;code&gt; &lt;del datetime=""&gt; &lt;em&gt; &lt;i&gt; &lt;q cite=""&gt; &lt;strike&gt; &lt;strong&gt; </code></p>						<p class="form-submit">
+							<input name="submit" type="submit" id="submit" value="Post Comment">
+							<input type="hidden" name="comment_post_ID" value="271" id="comment_post_ID">
+<input type="hidden" name="comment_parent" id="comment_parent" value="0">
+						</p>
+											</form>
+							</div><!-- #respond -->
+			</div>			
+<nav class="pagination">
+  <span class="prev">
+    <a href="http://davidshariff.com/blog/" class="back_to_blog">←&nbsp;&nbsp;&nbsp;read more</a>
+  </span>
+</nav>
+
+</section><!-- #main -->
+
+<script data-cfasync="false" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+
+<script type="text/javascript" charset="utf-8">
+
+
+    $('.comment code').each(function() {
+        var that = $(this),
+            parent = that.parent()[0];
+        if (parent && parent.nodeName.toLowerCase() !== 'pre') {
+             that.wrap('<pre class="language-javascript"></pre>');
+        }
+    });
+
+    
+    $('.comment pre').each(function() {
+        var that = $(this),
+            child = that.children()[0];
+        if (child && child.nodeName.toLowerCase() !== 'code') {
+             that.addClass('language-javascript');
+             that.html('<code>' + $(this).html() + '</code>');
+        }
+    });
+
+</script>
+
+<script src="./Identifier Resolution and Closures in the JavaScript Scope Chain by David Shariff_files/prism.js.下载"></script>
+		
+			
+
+<script type="text/javascript">
+  
+  jQuery(document).ready(function($) {
+    $("#also-read-items li").hover(
+      function() {
+        $(this).css('color', 'white');
+        $(this).css('background-color', '#a1e69e');
+        $(this).find('.link_kudo').css('border', '3px solid white');
+      },
+      function() {
+        $(this).css('color', '#777');
+        $(this).css('background-color', 'white');
+        $(this).find('.link_kudo').css('border', '3px solid #777');
+      }
+    );
+  });
+</script></body></html>

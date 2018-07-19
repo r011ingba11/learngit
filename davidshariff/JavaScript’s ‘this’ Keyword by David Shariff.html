@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<!-- saved from url=(0067)http://davidshariff.com/blog/javascript-this-keyword/#first-article -->
+<html lang="en-US" class="no-js"><!--<![endif]--><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.5, minimum-scale=0.5">
+		<title>JavaScript’s ‘this’ Keyword by David Shariff</title>
+		<link rel="profile" href="http://gmpg.org/xfn/11">
+		<link rel="stylesheet" type="text/css" media="all" href="./JavaScript’s ‘this’ Keyword by David Shariff_files/style.css">
+                <link rel="stylesheet" type="text/css" media="all" href="./JavaScript’s ‘this’ Keyword by David Shariff_files/prism.css">
+		<link rel="pingback" href="http://davidshariff.com/blog/xmlrpc.php">
+		<link rel="shortcut icon" href="http://davidshariff.com/blog/wp-content/themes/svbtle/images/favicon.ico">
+		<!--[if lt IE 9]>
+			<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+		<![endif]-->
+		<script type="text/javascript" async="" src="./JavaScript’s ‘this’ Keyword by David Shariff_files/ga.js.下载"></script><script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-4668256-3']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+		<!-- styles that need access to server vars -->
+		<style>
+		blockquote {
+		    border-color: #a1e69e;
+		}
+		figure.logo,
+		aside.alsoby li a:hover,
+		aside.kudo.complete span.circle {
+		    background-color: #a1e69e;
+		}
+		section.preview header#begin h2,
+		ul#user_meta a:hover,
+		nav.pagination span.next a,
+		nav.pagination span.prev a,
+		.comment-awaiting-moderation,
+		header#sidebar h1 span {
+		    color: #a1e69e; 
+		}
+		ul#user_meta a:hover,
+		nav.pagination span.next a,
+		nav.pagination span.prev a {
+		    border-color: #a1e69e;
+		}
+		::-moz-selection {
+		    background: #a1e69e;
+		    color: #fff;
+		    text-shadow: none;
+		}
+		::selection {
+		    background: #a1e69e;
+		    color: #fff;
+		    text-shadow: none;
+		}
+		.entry-content a {
+		    color: #a1e69e;
+		    border-bottom: none;
+		}
+		</style>
+		
+		<link rel="alternate" type="application/rss+xml" title="David Shariff » JavaScript’s ‘this’ Keyword Comments Feed" href="http://davidshariff.com/blog/javascript-this-keyword/feed/">
+<link rel="stylesheet" id="cptch_stylesheet-css" href="./JavaScript’s ‘this’ Keyword by David Shariff_files/style(1).css" type="text/css" media="all">
+<script type="text/javascript" src="./JavaScript’s ‘this’ Keyword by David Shariff_files/jquery.js.下载"></script>
+<script type="text/javascript" src="./JavaScript’s ‘this’ Keyword by David Shariff_files/jquery-migrate.min.js.下载"></script>
+<script type="text/javascript" src="./JavaScript’s ‘this’ Keyword by David Shariff_files/comment-reply.min.js.下载"></script>
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://davidshariff.com/blog/xmlrpc.php?rsd">
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://davidshariff.com/blog/wp-includes/wlwmanifest.xml"> 
+<link rel="prev" title="CSS Transparent Background" href="http://davidshariff.com/blog/css-transparent-background/">
+<link rel="next" title="JavaScript Inheritance Patterns" href="http://davidshariff.com/blog/javascript-inheritance-patterns/">
+<meta name="generator" content="WordPress 3.6">
+<link rel="canonical" href="http://davidshariff.com/blog/javascript-this-keyword/">
+<link rel="shortlink" href="http://davidshariff.com/blog/?p=34">
+<meta name="description" content="JavaScript’s ‘this’ Keyword - A commonly used feature of JavaScript is the “this” keyword, but it is often also one of the most confused and misinterpreted features of the ...">
+<style type="text/css">
+figure.logo a, aside#logo div a, aside.kudo.complete span.circle{background-image: url();}
+    </style>
+		
+	</head>
+	<body class="single single-post postid-34 single-format-standard" style="">
+
+		<header id="sidebar">
+			<h1><a href="http://davidshariff.com/"><span>David</span> Shariff</a></h1>
+			<h2><a href="http://davidshariff.com/blog/">Manage the UI Platform Team @ Amazon.com</a></h2>
+			<a href="https://twitter.com/davidshariff" class="twitter-follow-button" data-size="small" data-show-count="true">Follow @davidshariff</a><script async="" src="http://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+			
+<div class="amazon-hire">
+        <p>I'm hiring! Send your resumé to:</p>
+        <p><span>primenow-hiring@amazon.com</span></p>
+</div>
+
+			<h3>Previously at <a href="http://us.yahoo.com/">Yahoo</a>, <a href="https://www.agilemarkets.com/">RBS</a>, <a href="http://richi.com/">Richi</a> and <a href="http://trendmicro.com/">Trend Micro</a>.</h3>
+
+			<ul id="user_nav">
+			
+				<div class="menu-links-container"><ul id="menu-links" class="menu"><li id="menu-item-653" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-653"><a title="Blog Homepage" href="http://davidshariff.com/blog">Blog Homepage</a></li>
+<li id="menu-item-654" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-654"><a href="https://github.com/davidshariff/">View my Github</a></li>
+<li id="menu-item-681" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-681"><a href="http://www.linkedin.com/in/dshariff">See my LinkedIn</a></li>
+</ul></div>				
+						
+		
+				
+		  </ul>
+
+<div class="employer-disclaimer">
+Views are my own, and don't represent those of my employer.
+</div>
+
+		</header>
+
+		
+		<section id="river" role="main">
+        
+        
+
+	
+			<div id="first-article">
+			<article id="34" class="post">
+
+				<h2 class="entry-title">	<a href="http://davidshariff.com/blog/javascript-this-keyword/#first-article" class="no-link" title="Permalink to JavaScript’s ‘this’ Keyword" rel="bookmark">JavaScript’s ‘this’ Keyword</a>
+
+</h2>
+
+									<div class="entry-content">
+						<p>A commonly used feature of JavaScript is the “this” keyword, but it is often also one of the most confused and misinterpreted&nbsp;features of the language. What does “this” actually mean and how is it decided?<span id="more-34"></span></p>
+<p>This article tries to clear up the confusion&nbsp;and explain the answer in a clear fashion.</p>
+<p>The “this” keyword is not new to those who have programmed in other languages, and more often than not it refers to&nbsp;the new object created when instantiating a class via it’s constructor. For example, if I have a class Boat(), which has a&nbsp;method moveBoat(), when refering to “this” inside of the moveBoat() method, we are actually accessing the newly created object of Boat().</p>
+<p>In JavaScript, we also have this concept inside a Function constructor when it is invoked using the “new” keyword, however it&nbsp;is not the only rule and “this” can often refer to a different object from a different execution context. If you are not familiar&nbsp;with JavaScript’s execution context, I recommend you read my other post on the topic <a href="http://davidshariff.com/blog/javascript_execution_context">here</a>. Enough talking, let’s see some JavaScript examples:</p>
+<pre class=" language-javascript"><code class=" language-javascript"><span class="token comment" spellcheck="true">// global scope
+</span>
+foo <span class="token operator">=</span> <span class="token string">'abc'</span><span class="token punctuation">;</span>
+<span class="token function">alert<span class="token punctuation">(</span></span>foo<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // abc
+</span>
+this<span class="token punctuation">.</span>foo <span class="token operator">=</span> <span class="token string">'def'</span><span class="token punctuation">;</span>
+<span class="token function">alert<span class="token punctuation">(</span></span>foo<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // def</span></code></pre>
+<p>Whenever you use the keyword “this” in the global context (not inside a function), it always refers to the global object. Now&nbsp;let’s look at the value of “this” inside a function:</p>
+<pre class=" language-javascript"><code class=" language-javascript"><span class="token keyword">var</span> boat <span class="token operator">=</span> <span class="token punctuation">{</span>
+    size<span class="token punctuation">:</span> <span class="token string">'normal'</span><span class="token punctuation">,</span>
+    boatInfo<span class="token punctuation">:</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token function">alert<span class="token punctuation">(</span></span>this <span class="token operator">===</span> boat<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">alert<span class="token punctuation">(</span></span>this<span class="token punctuation">.</span>size<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+boat<span class="token punctuation">.</span><span class="token function">boatInfo<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // true, 'normal'
+</span>
+<span class="token keyword">var</span> bigBoat <span class="token operator">=</span> <span class="token punctuation">{</span>
+    size<span class="token punctuation">:</span> <span class="token string">'big'</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+bigBoat<span class="token punctuation">.</span>boatInfo <span class="token operator">=</span> boat<span class="token punctuation">.</span>boatInfo<span class="token punctuation">;</span>
+bigBoat<span class="token punctuation">.</span><span class="token function">boatInfo<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // false, 'big'</span></code></pre>
+<p>So how is “this” determined above? We can see an object boat which has a property size and a method boatInfo().&nbsp;Inside boatInfo(), it alerts if the value of this is the actual boat object, and also alerts the size property of this.&nbsp;So, we invoke the function using boat.boatInfo() and can see that this is the boat object and the size property of the boat is normal.</p>
+<p>We then create another object, bigBoat, which has a size property of big. However, the bigBoat object does not have a boatInfo()&nbsp;method, so we copy the method from boat using bigBoat.boatInfo = boat.boatInfo. Now, when we call bigBoat.boatInfo() and enter the function, we&nbsp;see that this is not equal to boat and that size property is now big. Why did this happen? How did the value of this change inside boatInfo()?</p>
+<p>The first thing you must realise is that the value of this inside any function is never static, it is always determined every time&nbsp;you call a function, but before the function actually executes it’s code. The value of this&nbsp;inside a function is actually provided by&nbsp;the parent scope in which the function was called, and more importantly, how the actual function syntax was written.</p>
+<p>Whenever a function is called, we must look at the immediate left side of the brackets / parentheses “()”. If on the left side of the&nbsp;parentheses we can see a reference, then the value of “this” passed to the function call is exactly of which that object belongs to, otherwise it is the global object. Let’s see&nbsp;some examples:</p>
+<pre class=" language-javascript"><code class=" language-javascript"><span class="token keyword">function</span> <span class="token function">bar<span class="token punctuation">(</span></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token function">alert<span class="token punctuation">(</span></span>this<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span class="token function">bar<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // global - because the method bar() belongs to the global object when invoked
+</span>
+<span class="token keyword">var</span> foo <span class="token operator">=</span> <span class="token punctuation">{</span>
+    baz<span class="token punctuation">:</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token function">alert<span class="token punctuation">(</span></span>this<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+foo<span class="token punctuation">.</span><span class="token function">baz<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // foo - because the method baz() belongs to the object foo when invoked</span></code></pre>
+<p>If things are clear this far, then the above code obviously makes sense. We can further complicate things by&nbsp;changing the value of “this” inside the very same function, by writing the call / invoke syntax in 2 different ways:</p>
+<pre class=" language-javascript"><code class=" language-javascript"><span class="token keyword">var</span> foo <span class="token operator">=</span> <span class="token punctuation">{</span>
+    baz<span class="token punctuation">:</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token function">alert<span class="token punctuation">(</span></span>this<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+foo<span class="token punctuation">.</span><span class="token function">baz<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // foo - because baz belongs to the foo object when invoked
+</span>
+<span class="token keyword">var</span> anotherBaz <span class="token operator">=</span> foo<span class="token punctuation">.</span>baz<span class="token punctuation">;</span>
+<span class="token function">anotherBaz<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // global - because the method anotherBaz() belongs to the global object when invoked, NOT foo</span></code></pre>
+<p>Here, we see the value of “this” inside baz()&nbsp;was different each time, as it was syntactically called in 2 different ways. Now, let’s see the value of “this” inside a deeply nested object:</p>
+<pre class=" language-javascript"><code class=" language-javascript"><span class="token keyword">var</span> anum <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+
+<span class="token keyword">var</span> foo <span class="token operator">=</span> <span class="token punctuation">{</span>
+    anum<span class="token punctuation">:</span> <span class="token number">10</span><span class="token punctuation">,</span>
+    baz<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+        anum<span class="token punctuation">:</span> <span class="token number">20</span><span class="token punctuation">,</span>
+        bar<span class="token punctuation">:</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            console<span class="token punctuation">.</span><span class="token function">log<span class="token punctuation">(</span></span>this<span class="token punctuation">.</span>anum<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+foo<span class="token punctuation">.</span>baz<span class="token punctuation">.</span><span class="token function">bar<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // 20 - because left side of () is bar, which belongs to baz object when invoked
+</span>
+<span class="token keyword">var</span> hello <span class="token operator">=</span> foo<span class="token punctuation">.</span>baz<span class="token punctuation">.</span>bar<span class="token punctuation">;</span>
+<span class="token function">hello<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // 0 - because left side of () is hello, which belongs to global object when invoked</span></code></pre>
+<p>Another question often asked is how is the keyword “this” determined inside an event handler? The answer is “this”&nbsp;inside of an event handler always refers to the element it was triggered on. Let’s see an example:</p>
+<pre class="  language-javascript"><code class=" language-markup"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>test<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>I am an element with id #test<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">&gt;</span></span></code>
+
+<code class=" language-javascript"><span class="token keyword">function</span> <span class="token function">doAlert<span class="token punctuation">(</span></span><span class="token punctuation">)</span> <span class="token punctuation">{</span> 
+    <span class="token function">alert<span class="token punctuation">(</span></span>this<span class="token punctuation">.</span>innerHTML<span class="token punctuation">)</span><span class="token punctuation">;</span> 
+<span class="token punctuation">}</span> 
+
+<span class="token function">doAlert<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // undefined 
+</span>
+<span class="token keyword">var</span> myElem <span class="token operator">=</span> document<span class="token punctuation">.</span><span class="token function">getElementById<span class="token punctuation">(</span></span><span class="token string">'test'</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 
+myElem<span class="token punctuation">.</span>onclick <span class="token operator">=</span> doAlert<span class="token punctuation">;</span> 
+
+<span class="token function">alert<span class="token punctuation">(</span></span>myElem<span class="token punctuation">.</span>onclick <span class="token operator">===</span> doAlert<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // true 
+</span>myElem<span class="token punctuation">.</span><span class="token function">onclick<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // I am an element</span></code></pre>
+<p>Here we can see that when doAlert() is first called, it alerts undefined, as doAlert() belongs to the&nbsp;global object. We then write myElem.onclick = doAlert, which copies the function doAlert() to the onclick()&nbsp;event of myElem. This basically means that whenever onclick() is fired, it is a method of myElem, meaning the value of “this” will be the myElem object exactly.</p>
+<p>One last thing I want to note on this topic, is that the value of “this” can also be manually set using call() and apply(),&nbsp;overriding what we have discussed here today. Also of interested is that when calling “this” inside a&nbsp;function constructor, “this” refers to the newly created object in all instances inside the constructor. The reason for that is&nbsp;the function constructor is invoked with the “new” keyword, which creates a new object where “this” inside the&nbsp;constructor always refers to the new object just created.</p>
+<h2>Summary</h2>
+<p>Hopefully today’s blog post has cleared up any misunderstanding of the “this” keyword and you can go forth always&nbsp;knowing the correct value of “this”. We now know that the value of “this” is never static and has a different value&nbsp;depending on how the function was invoked.</p>
+											</div><!-- .entry-content -->
+				
+			</article><!-- #post-## -->
+			</div>
+
+		
+	
+
+
+<div class="yarpp-related">
+<h2 id="also-read-title">Related Posts...</h2><ul id="also-read-items">
+<li><a href="http://davidshariff.com/blog/chaining-variable-assignments-in-javascript-words-of-caution/" rel="bookmark" title="Chaining Variable Assignments in JavaScript: Words of Caution"><h3>Chaining Variable Assignments in JavaScript: Words of Caution</h3><p class="link_kudo">1</p></a></li>
+<li><a href="http://davidshariff.com/blog/javascript-inheritance-patterns/" rel="bookmark" title="JavaScript Inheritance Patterns"><h3>JavaScript Inheritance Patterns</h3><p class="link_kudo">2</p></a></li>
+<li><a href="http://davidshariff.com/blog/javascripts-undefined-explored/" rel="bookmark" title="JavaScript’s Undefined Explored"><h3>JavaScript’s Undefined Explored</h3><p class="link_kudo">3</p></a></li>
+<li><a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/" rel="bookmark" title="What is the Execution Context &amp; Stack in JavaScript?"><h3>What is the Execution Context &amp; Stack in JavaScript?</h3><p class="link_kudo">4</p></a></li>
+<li><a href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/" rel="bookmark" title="Identifier Resolution and Closures in the JavaScript Scope Chain"><h3>Identifier Resolution and Closures in the JavaScript Scope Chain</h3><p class="link_kudo">5</p></a></li>
+</ul>
+</div>
+
+<div id="comments">
+	<h2>
+		Comments
+	</h2>
+
+	
+	<ol class="commentlist unstyled">
+			<li class="comment even thread-even depth-1" id="li-comment-4">
+		<article id="comment-4" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./JavaScript’s ‘this’ Keyword by David Shariff_files/684c7a0eab535876398f089778070907" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Sean</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-this-keyword/#comment-4"><time pubdate="" datetime="2012-01-25T18:44:33+00:00">25/01/2012 at 6:44 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>This is an interesting concept to me. Made sense and I really can picture what I want to use this for now.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-this-keyword/?replytocom=4#respond" onclick="return addComment.moveForm(&quot;comment-4&quot;, &quot;4&quot;, &quot;respond&quot;, &quot;34&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-4 -->
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-odd thread-alt depth-1" id="li-comment-62">
+		<article id="comment-62" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./JavaScript’s ‘this’ Keyword by David Shariff_files/c6d731e67c7659c94b00c2ac95fe7ff1" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn"><a href="http://mikegioia.com/" rel="external nofollow" class="url">Mike Gioia</a></span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-this-keyword/#comment-62"><time pubdate="" datetime="2012-07-13T23:51:20+00:00">13/07/2012 at 11:51 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>I often declare a “var self = this;” inside class methods where I might set up jQuery events. Does “self” in this case create a copy of “this” or is it just referencing the same variable in memory?</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-this-keyword/?replytocom=62#respond" onclick="return addComment.moveForm(&quot;comment-62&quot;, &quot;62&quot;, &quot;respond&quot;, &quot;34&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-62 -->
+	<ul class="children">
+	<li class="comment byuser comment-author-admin bypostauthor even depth-2" id="li-comment-63">
+		<article id="comment-63" class="comment row">
+			<div class="comment-author-avatar span1 offset1">
+				<img alt="" src="./JavaScript’s ‘this’ Keyword by David Shariff_files/85845b4a20e7f101d29feb375f455630" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span6">
+				<div class="comment-author vcard">
+					<span class="fn">David Shariff</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-this-keyword/#comment-63"><time pubdate="" datetime="2012-07-20T13:26:28+00:00">20/07/2012 at 1:26 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span6">
+				<p>@Mike Gioia<br>
+Correct. By doing that you are creating a reference pointer to ‘this’.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-this-keyword/?replytocom=63#respond" onclick="return addComment.moveForm(&quot;comment-63&quot;, &quot;63&quot;, &quot;respond&quot;, &quot;34&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-63 -->
+	</li><!-- #comment-## -->
+	<li class="comment odd alt depth-2" id="li-comment-347">
+		<article id="comment-347" class="comment row">
+			<div class="comment-author-avatar span1 offset1">
+				<img alt="" src="./JavaScript’s ‘this’ Keyword by David Shariff_files/5420033d57945e871b468e1a225cb079" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span6">
+				<div class="comment-author vcard">
+					<span class="fn"><a href="http://www.focustheweb.com/" rel="external nofollow" class="url">Giovanni Cappellotto</a></span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-this-keyword/#comment-347"><time pubdate="" datetime="2013-10-24T00:30:43+00:00">24/10/2013 at 12:30 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span6">
+				<p>You could also use `bind`, more details at <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind" rel="nofollow">https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind</a></p>
+<p>This code</p>
+<p>    var self = this;<br>
+    setTimeout(function() {<br>
+      console.log(self);<br>
+    }, 0);</p>
+<p>is equivalent to</p>
+<p>    setTimeout(function() {<br>
+      console.log(this);<br>
+    }.bind(this), 0);</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-this-keyword/?replytocom=347#respond" onclick="return addComment.moveForm(&quot;comment-347&quot;, &quot;347&quot;, &quot;respond&quot;, &quot;34&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-347 -->
+	<ul class="children">
+	<li class="comment even depth-3" id="li-comment-408">
+		<article id="comment-408" class="comment row">
+			<div class="comment-author-avatar span1 offset2">
+				<img alt="" src="./JavaScript’s ‘this’ Keyword by David Shariff_files/5405b5c6a5d3e7ad4471ee7222810c9f" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span5">
+				<div class="comment-author vcard">
+					<span class="fn">Justin Myers</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-this-keyword/#comment-408"><time pubdate="" datetime="2014-02-28T01:00:54+00:00">28/02/2014 at 1:00 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span5">
+				<p>Just be warned that bind is not supported in IE8 or below for those of us who still have to support it.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-this-keyword/?replytocom=408#respond" onclick="return addComment.moveForm(&quot;comment-408&quot;, &quot;408&quot;, &quot;respond&quot;, &quot;34&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-408 -->
+	</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="comment odd alt thread-even depth-1" id="li-comment-67">
+		<article id="comment-67" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./JavaScript’s ‘this’ Keyword by David Shariff_files/b982ec40705d62f7630ea77ef50842f9" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Alex</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-this-keyword/#comment-67"><time pubdate="" datetime="2012-08-27T21:20:08+00:00">27/08/2012 at 9:20 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Very useful</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-this-keyword/?replytocom=67#respond" onclick="return addComment.moveForm(&quot;comment-67&quot;, &quot;67&quot;, &quot;respond&quot;, &quot;34&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-67 -->
+	</li><!-- #comment-## -->
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-140">
+		<article id="comment-140" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./JavaScript’s ‘this’ Keyword by David Shariff_files/135f0d03c9e70959afb6423f6162a6d0" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">raziqijr</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-this-keyword/#comment-140"><time pubdate="" datetime="2013-02-13T20:36:39+00:00">13/02/2013 at 8:36 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>i have a question if we have a function inside any object say</p>
+<p>var = obj {<br>
+str: ‘hello’,<br>
+sayhello: function (){ alert (str); } }// without the “this” keyword</p>
+<p>is it the same why would we use this keyword.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-this-keyword/?replytocom=140#respond" onclick="return addComment.moveForm(&quot;comment-140&quot;, &quot;140&quot;, &quot;respond&quot;, &quot;34&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-140 -->
+	<ul class="children">
+	<li class="comment odd alt depth-2" id="li-comment-561">
+		<article id="comment-561" class="comment row">
+			<div class="comment-author-avatar span1 offset1">
+				<img alt="" src="./JavaScript’s ‘this’ Keyword by David Shariff_files/bb02a5957650113d4c2f07675c0472e5" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span6">
+				<div class="comment-author vcard">
+					<span class="fn">tony</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-this-keyword/#comment-561"><time pubdate="" datetime="2015-01-26T23:31:36+00:00">26/01/2015 at 11:31 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span6">
+				<p>its same if you use obj.sayhello(). but if you use different object copying obj then you will get an error.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-this-keyword/?replytocom=561#respond" onclick="return addComment.moveForm(&quot;comment-561&quot;, &quot;561&quot;, &quot;respond&quot;, &quot;34&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-561 -->
+	</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="comment even thread-even depth-1" id="li-comment-143">
+		<article id="comment-143" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./JavaScript’s ‘this’ Keyword by David Shariff_files/1e6e3096cf67179b37b5f9dac9732523" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">SM</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-this-keyword/#comment-143"><time pubdate="" datetime="2013-02-24T23:37:45+00:00">24/02/2013 at 11:37 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Great explanation of “this” keyword in javascript.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-this-keyword/?replytocom=143#respond" onclick="return addComment.moveForm(&quot;comment-143&quot;, &quot;143&quot;, &quot;respond&quot;, &quot;34&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-143 -->
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-odd thread-alt depth-1" id="li-comment-166">
+		<article id="comment-166" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./JavaScript’s ‘this’ Keyword by David Shariff_files/f8c6c9a889b4b593ce9c846c5f022de8" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Willson</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-this-keyword/#comment-166"><time pubdate="" datetime="2013-04-04T04:29:02+00:00">04/04/2013 at 4:29 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>A great article explaining “this” – super helpful and clear.  Thanks!</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-this-keyword/?replytocom=166#respond" onclick="return addComment.moveForm(&quot;comment-166&quot;, &quot;166&quot;, &quot;respond&quot;, &quot;34&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-166 -->
+	</li><!-- #comment-## -->
+	<li class="comment even thread-even depth-1" id="li-comment-243">
+		<article id="comment-243" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./JavaScript’s ‘this’ Keyword by David Shariff_files/86b6f12c737f11b6fa08a7ee418e20b7" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Chelsea F.C.</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-this-keyword/#comment-243"><time pubdate="" datetime="2013-06-09T23:50:17+00:00">09/06/2013 at 11:50 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Hi David, it’s really a great article, but the below two blocks still confuse me. Can you explain it to me?<br>
+[Code Block 1]<br>
+<code><br>
+var name = "The Window";<br>
+　　var object = {<br>
+　　　　name : "My Object",<br>
+　　　　getNameFunc : function(){<br>
+　　　　　　return function(){<br>
+　　　　　　　　return this.name;<br>
+　　　　　　};<br>
+　　　　}<br>
+　　};<br>
+　　alert(object.getNameFunc()());<br>
+</code><br>
+[Code Block 2]<br>
+<code><br>
+　　var name = "The Window";<br>
+　　var object = {<br>
+　　　　name : "My Object",<br>
+　　　　getNameFunc : function(){<br>
+　　　　　　var that = this;<br>
+　　　　　　return function(){<br>
+　　　　　　　　return that.name;<br>
+　　　　　　};<br>
+　　　　}<br>
+　　};<br>
+　　alert(object.getNameFunc()());<br>
+</code></p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-this-keyword/?replytocom=243#respond" onclick="return addComment.moveForm(&quot;comment-243&quot;, &quot;243&quot;, &quot;respond&quot;, &quot;34&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-243 -->
+	<ul class="children">
+	<li class="comment odd alt depth-2" id="li-comment-477">
+		<article id="comment-477" class="comment row">
+			<div class="comment-author-avatar span1 offset1">
+				<img alt="" src="./JavaScript’s ‘this’ Keyword by David Shariff_files/c38067a34351a6a051dd46c7b6ebbd25" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span6">
+				<div class="comment-author vcard">
+					<span class="fn">srini</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-this-keyword/#comment-477"><time pubdate="" datetime="2014-07-23T14:31:32+00:00">23/07/2014 at 2:31 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span6">
+				<p>In codeblock-1 there are two function brackets which mean the first one “object.getNameFunc()” returns a function and the returned function is executed in global scope which returns “The window” value</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-this-keyword/?replytocom=477#respond" onclick="return addComment.moveForm(&quot;comment-477&quot;, &quot;477&quot;, &quot;respond&quot;, &quot;34&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-477 -->
+	</li><!-- #comment-## -->
+	<li class="comment even depth-2" id="li-comment-1073">
+		<article id="comment-1073" class="comment row">
+			<div class="comment-author-avatar span1 offset1">
+				<img alt="" src="./JavaScript’s ‘this’ Keyword by David Shariff_files/3cdff592be78b66e748794b6110cacfd" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span6">
+				<div class="comment-author vcard">
+					<span class="fn">con$piracy</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-this-keyword/#comment-1073"><time pubdate="" datetime="2016-05-26T18:36:19+00:00">26/05/2016 at 6:36 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span6">
+				<p>Code block 1<br>
+var object is declared under global scope. So there, “this” means the global scope </p>
+<p>Code block 2<br>
+var that is declared under Object scope. So there, “this” means the scope of Object.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-this-keyword/?replytocom=1073#respond" onclick="return addComment.moveForm(&quot;comment-1073&quot;, &quot;1073&quot;, &quot;respond&quot;, &quot;34&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1073 -->
+	</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="comment odd alt thread-odd thread-alt depth-1" id="li-comment-342">
+		<article id="comment-342" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./JavaScript’s ‘this’ Keyword by David Shariff_files/3ad3b2d73f2e9213c7751a7acbab6eed" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Jonathan Schor</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-this-keyword/#comment-342"><time pubdate="" datetime="2013-10-19T15:14:15+00:00">19/10/2013 at 3:14 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>It’s rare to see complex subjects broken down into an explanation that everyone can easily read and understand. Great work!</p>
+<p>Some typos:<br>
+- thisinside<br>
+- baz()was<br>
+ <img src="./JavaScript’s ‘this’ Keyword by David Shariff_files/icon_smile.gif" alt=":)" class="wp-smiley"> </p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-this-keyword/?replytocom=342#respond" onclick="return addComment.moveForm(&quot;comment-342&quot;, &quot;342&quot;, &quot;respond&quot;, &quot;34&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-342 -->
+	<ul class="children">
+	<li class="comment byuser comment-author-admin bypostauthor even depth-2" id="li-comment-343">
+		<article id="comment-343" class="comment row">
+			<div class="comment-author-avatar span1 offset1">
+				<img alt="" src="./JavaScript’s ‘this’ Keyword by David Shariff_files/85845b4a20e7f101d29feb375f455630" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span6">
+				<div class="comment-author vcard">
+					<span class="fn">David Shariff</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-this-keyword/#comment-343"><time pubdate="" datetime="2013-10-21T01:47:05+00:00">21/10/2013 at 1:47 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span6">
+				<p>Thanks and well spotted!</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-this-keyword/?replytocom=343#respond" onclick="return addComment.moveForm(&quot;comment-343&quot;, &quot;343&quot;, &quot;respond&quot;, &quot;34&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-343 -->
+	</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="comment odd alt thread-even depth-1" id="li-comment-1079">
+		<article id="comment-1079" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./JavaScript’s ‘this’ Keyword by David Shariff_files/2d266e994139ff3ee8005cfbc8c6ca80" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Rupali Gangarde</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-this-keyword/#comment-1079"><time pubdate="" datetime="2016-06-10T01:21:07+00:00">10/06/2016 at 1:21 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Helpful and clear , Thanks <img src="./JavaScript’s ‘this’ Keyword by David Shariff_files/icon_smile.gif" alt=":)" class="wp-smiley"> </p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-this-keyword/?replytocom=1079#respond" onclick="return addComment.moveForm(&quot;comment-1079&quot;, &quot;1079&quot;, &quot;respond&quot;, &quot;34&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1079 -->
+	</li><!-- #comment-## -->
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-1578">
+		<article id="comment-1578" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./JavaScript’s ‘this’ Keyword by David Shariff_files/c99c9be390c0b0798867235796ad956a" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Kyoshi Shido</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/javascript-this-keyword/#comment-1578"><time pubdate="" datetime="2017-12-19T00:46:53+00:00">19/12/2017 at 12:46 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>That was really helpful. Thanks a lot!</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/javascript-this-keyword/?replytocom=1578#respond" onclick="return addComment.moveForm(&quot;comment-1578&quot;, &quot;1578&quot;, &quot;respond&quot;, &quot;34&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1578 -->
+	</li><!-- #comment-## -->
+	</ol>
+
+	
+</div><!-- #comments -->
+					<div class="comments">			<div id="respond" class="comment-respond">
+				<h3 id="reply-title" class="comment-reply-title">Leave a Reply <small><a rel="nofollow" id="cancel-comment-reply-link" href="http://davidshariff.com/blog/javascript-this-keyword/#respond" style="display:none;">Cancel reply</a></small></h3>
+									<form action="http://davidshariff.com/blog/wp-comments-post.php" method="post" id="commentform" class="comment-form">
+																			<p class="comment-notes">Your email address will not be published. Required fields are marked <span class="required">*</span></p>							<p class="comment-form-author"><label for="author">Name <span class="required">*</span></label> <input id="author" name="author" type="text" value="" size="30" aria-required="true"></p>
+<p class="comment-form-email"><label for="email">Email <span class="required">*</span></label> <input id="email" name="email" type="text" value="" size="30" aria-required="true"></p>
+<p class="comment-form-url"><label for="url">Website</label> <input id="url" name="url" type="text" value="" size="30"></p>
+<p class="cptch_block"><label>[Spam Check] What is: <span class="required"> *</span></label><br>		<input type="hidden" name="cptch_result" value="sZrE">
+		<input type="hidden" name="cptch_time" value="1531719748">
+		<input type="hidden" value="Version: 4.1.2">
+		six × 6 =  <input id="cptch_input" class="cptch_input" type="text" autocomplete="off" name="cptch_number" value="" maxlength="2" size="2" aria-required="true" required="required" style="margin-bottom:0;display:inline;font-size: 12px;width: 40px;"></p>												<p class="comment-form-comment"><label for="comment">Comment</label> <textarea id="comment" name="comment" cols="45" rows="8" aria-required="true"></textarea></p>						<p class="form-allowed-tags">You may use these <abbr title="HyperText Markup Language">HTML</abbr> tags and attributes:  <code>&lt;a href="" title=""&gt; &lt;abbr title=""&gt; &lt;acronym title=""&gt; &lt;b&gt; &lt;blockquote cite=""&gt; &lt;cite&gt; &lt;code&gt; &lt;del datetime=""&gt; &lt;em&gt; &lt;i&gt; &lt;q cite=""&gt; &lt;strike&gt; &lt;strong&gt; </code></p>						<p class="form-submit">
+							<input name="submit" type="submit" id="submit" value="Post Comment">
+							<input type="hidden" name="comment_post_ID" value="34" id="comment_post_ID">
+<input type="hidden" name="comment_parent" id="comment_parent" value="0">
+						</p>
+											</form>
+							</div><!-- #respond -->
+			</div>			
+<nav class="pagination">
+  <span class="prev">
+    <a href="http://davidshariff.com/blog/" class="back_to_blog">←&nbsp;&nbsp;&nbsp;read more</a>
+  </span>
+</nav>
+
+</section><!-- #main -->
+
+<script data-cfasync="false" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+
+<script type="text/javascript" charset="utf-8">
+
+
+    $('.comment code').each(function() {
+        var that = $(this),
+            parent = that.parent()[0];
+        if (parent && parent.nodeName.toLowerCase() !== 'pre') {
+             that.wrap('<pre class="language-javascript"></pre>');
+        }
+    });
+
+    
+    $('.comment pre').each(function() {
+        var that = $(this),
+            child = that.children()[0];
+        if (child && child.nodeName.toLowerCase() !== 'code') {
+             that.addClass('language-javascript');
+             that.html('<code>' + $(this).html() + '</code>');
+        }
+    });
+
+</script>
+
+<script src="./JavaScript’s ‘this’ Keyword by David Shariff_files/prism.js.下载"></script>
+		
+			
+
+<script type="text/javascript">
+  
+  jQuery(document).ready(function($) {
+    $("#also-read-items li").hover(
+      function() {
+        $(this).css('color', 'white');
+        $(this).css('background-color', '#a1e69e');
+        $(this).find('.link_kudo').css('border', '3px solid white');
+      },
+      function() {
+        $(this).css('color', '#777');
+        $(this).css('background-color', 'white');
+        $(this).find('.link_kudo').css('border', '3px solid #777');
+      }
+    );
+  });
+</script></body></html>

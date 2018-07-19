@@ -1,0 +1,2795 @@
+<!DOCTYPE html>
+<!-- saved from url=(0087)http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#first-article -->
+<html lang="en-US" class="no-js"><!--<![endif]--><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.5, minimum-scale=0.5">
+		<title>What is the Execution Context &amp; Stack in JavaScript? by David Shariff</title>
+		<link rel="profile" href="http://gmpg.org/xfn/11">
+		<link rel="stylesheet" type="text/css" media="all" href="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/style.css">
+                <link rel="stylesheet" type="text/css" media="all" href="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/prism.css">
+		<link rel="pingback" href="http://davidshariff.com/blog/xmlrpc.php">
+		<link rel="shortcut icon" href="http://davidshariff.com/blog/wp-content/themes/svbtle/images/favicon.ico">
+		<!--[if lt IE 9]>
+			<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+		<![endif]-->
+		<script type="text/javascript" async="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/ga.js.下载"></script><script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-4668256-3']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+		<!-- styles that need access to server vars -->
+		<style>
+		blockquote {
+		    border-color: #a1e69e;
+		}
+		figure.logo,
+		aside.alsoby li a:hover,
+		aside.kudo.complete span.circle {
+		    background-color: #a1e69e;
+		}
+		section.preview header#begin h2,
+		ul#user_meta a:hover,
+		nav.pagination span.next a,
+		nav.pagination span.prev a,
+		.comment-awaiting-moderation,
+		header#sidebar h1 span {
+		    color: #a1e69e; 
+		}
+		ul#user_meta a:hover,
+		nav.pagination span.next a,
+		nav.pagination span.prev a {
+		    border-color: #a1e69e;
+		}
+		::-moz-selection {
+		    background: #a1e69e;
+		    color: #fff;
+		    text-shadow: none;
+		}
+		::selection {
+		    background: #a1e69e;
+		    color: #fff;
+		    text-shadow: none;
+		}
+		.entry-content a {
+		    color: #a1e69e;
+		    border-bottom: none;
+		}
+		</style>
+		
+		<link rel="alternate" type="application/rss+xml" title="David Shariff » What is the Execution Context &amp; Stack in JavaScript? Comments Feed" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/feed/">
+<link rel="stylesheet" id="cptch_stylesheet-css" href="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/style(1).css" type="text/css" media="all">
+<script type="text/javascript" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/jquery.js.下载"></script>
+<script type="text/javascript" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/jquery-migrate.min.js.下载"></script>
+<script type="text/javascript" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/comment-reply.min.js.下载"></script>
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://davidshariff.com/blog/xmlrpc.php?rsd">
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://davidshariff.com/blog/wp-includes/wlwmanifest.xml"> 
+<link rel="prev" title="Futures and Promises in JavaScript" href="http://davidshariff.com/blog/futures-and-promises-in-javascript/">
+<link rel="next" title="Identifier Resolution and Closures in the JavaScript Scope Chain" href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/">
+<meta name="generator" content="WordPress 3.6">
+<link rel="canonical" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/">
+<link rel="shortlink" href="http://davidshariff.com/blog/?p=137">
+<meta name="description" content="What is the Execution Context &amp; Stack in JavaScript? - In this post I will take an in-depth look at one of the most fundamental parts of JavaScript, the Execution Context. By the end of this post, you should h...">
+<style type="text/css">
+figure.logo a, aside#logo div a, aside.kudo.complete span.circle{background-image: url();}
+    </style>
+		
+	</head>
+	<body class="single single-post postid-137 single-format-standard" style="">
+
+		<header id="sidebar">
+			<h1><a href="http://davidshariff.com/"><span>David</span> Shariff</a></h1>
+			<h2><a href="http://davidshariff.com/blog/">Manage the UI Platform Team @ Amazon.com</a></h2>
+			<a href="https://twitter.com/davidshariff" class="twitter-follow-button" data-size="small" data-show-count="true">Follow @davidshariff</a><script async="" src="http://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+			
+<div class="amazon-hire">
+        <p>I'm hiring! Send your resumé to:</p>
+        <p><span>primenow-hiring@amazon.com</span></p>
+</div>
+
+			<h3>Previously at <a href="http://us.yahoo.com/">Yahoo</a>, <a href="https://www.agilemarkets.com/">RBS</a>, <a href="http://richi.com/">Richi</a> and <a href="http://trendmicro.com/">Trend Micro</a>.</h3>
+
+			<ul id="user_nav">
+			
+				<div class="menu-links-container"><ul id="menu-links" class="menu"><li id="menu-item-653" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-653"><a title="Blog Homepage" href="http://davidshariff.com/blog">Blog Homepage</a></li>
+<li id="menu-item-654" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-654"><a href="https://github.com/davidshariff/">View my Github</a></li>
+<li id="menu-item-681" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-681"><a href="http://www.linkedin.com/in/dshariff">See my LinkedIn</a></li>
+</ul></div>				
+						
+		
+				
+		  </ul>
+
+<div class="employer-disclaimer">
+Views are my own, and don't represent those of my employer.
+</div>
+
+		</header>
+
+		
+		<section id="river" role="main">
+        
+        
+
+	
+			<div id="first-article">
+			<article id="137" class="post">
+
+				<h2 class="entry-title">	<a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#first-article" class="no-link" title="Permalink to What is the Execution Context &amp; Stack in JavaScript?" rel="bookmark">What is the Execution Context &amp; Stack in JavaScript?</a>
+
+</h2>
+
+									<div class="entry-content">
+						<p>In this post I will take an in-depth look at one of the most fundamental parts of JavaScript, the <code>Execution Context</code>.<span id="more-137"></span> By the end of this post, you should have a clearer understanding about what the interpreter is trying to do, why some functions / variables can be used before they are declared and how their value is really determined.</p>
+<h2>What is the Execution Context?</h2>
+<p>When code is run in JavaScript, the environment in which it is executed is very important, and is evaluated as 1 of the following:</p>
+<ul class="square" style="margin-bottom: 20px;">
+<li><strong>Global code</strong> – The default envionment where your code is executed for the first time.</li>
+<li><strong>Function code</strong> – Whenever the flow of execution enters a function body.</li>
+<li><strong>Eval code</strong> – Text to be executed inside the internal eval function.</li>
+</ul>
+<p>You can read a lot of resources online that refer to <code>scope</code>, and for the purpose of this article to make things easier to understand, let’s think of the term <code>execution context</code> as the envionment / scope the current code is being evaluated in. Now, enough talking, let’s see an example that includes both <code>global</code> and <code>function / local</code> context evaluated code.</p>
+<p><a href="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/img1.jpg"><img class="alignnone size-full wp-image-145" title="Execution Context" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/img1.jpg" alt=""></a></p>
+<p>Nothing special is going on here, we have 1 <code>global context</code> represented by the purple border and 3 different <code>function contexts</code> represented by the green, blue and orange borders. There can only ever be 1 <code>global context</code>, which can be accessed from any other context in your program.</p>
+<p>You can have any number of <code>function contexts</code>, and each function call creates a new context, which creates a private scope where anything declared inside of the function can not be directly accessed from outside the current function scope. In the example above, a function can access a variable declared outside of its current context, but an outside context can not access the variables / functions declared inside. Why does this happen? How exactly is this code evaluated?</p>
+<h2 id="ecstack">Execution Context Stack</h2>
+<p>The JavaScript interpreter in a browser is implemented as a single thread. What this actually means is that only 1 thing can ever happen at one time in the browser, with other actions or events being queued in what is called the <code>Execution Stack</code>. The diagram below is an abstract view of a single threaded stack:</p>
+<p><a href="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/ecstack.jpg"><img class="size-full wp-image-152" title="Execution Context Stack" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/ecstack.jpg" alt="" width="555" height="288"></a></p>
+<p>As we already know, when a browser first loads your script, it enters the <code>global execution context</code> by default. If, in your global code you call a function, the sequence flow of your program enters the function being called, creating a new <code>execution context</code> and pushing that context to the top of the <code>execution stack</code>.</p>
+<p>If you call another function inside this current function, the same thing happens. The execution flow of code enters the inner function, which creates a new <code>execution context</code> that is pushed to the top of the existing stack. The browser will always execute the current <code>execution context</code> that sits on top of the stack, and once the function completes executing the current <code>execution context</code>, it will be popped off the top of the stack, returning control to the context below in the current stack. The example below shows a recursive function and the program’s <code>execution stack</code>:</p>
+<pre class=" language-javascript"><code class=" language-javascript"><span class="token punctuation">(</span><span class="token keyword">function</span> <span class="token function">foo<span class="token punctuation">(</span></span>i<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>i <span class="token operator">===</span> <span class="token number">3</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">else</span> <span class="token punctuation">{</span>
+        <span class="token function">foo<span class="token punctuation">(</span></span><span class="token operator">++</span>i<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code>
+</pre>
+<p><a href="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/es1.gif"><img class="size-full wp-image-157 left" style="padding-bottom: 40px;" title="Execution Stack" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/es1.gif" alt="" width="390" height="259"></a></p>
+<p>The code simply calls itself 3 times, incrementing the value of i by 1. Each time the function <code>foo</code> is called, a new execution context is created. Once a context has finished executing, it pops off the stack and control returns to the context below it until the <code>global context</code> is reached again.</p>
+<p><strong>There are 5 key points to remember about the <code>execution stack</code></strong>:</p>
+<ul style="margin-bottom: 20px; list-style-type: square; margin-left: 20px; display: inline-block;">
+<li>Single threaded.</li>
+<li>Synchronous execution.</li>
+<li>1 Global context.</li>
+<li>Infinite function contexts.</li>
+<li>Each function call creates a new <code>execution context</code>, even a call to itself.</li>
+</ul>
+<h2>Execution Context in Detail</h2>
+<p>So we now know that everytime a function is called, a new <code>execution context</code> is created. However, inside the JavaScript interpreter, every call to an <code>execution context</code> has 2 stages:</p>
+<ol>
+<li><strong>Creation Stage</strong> [when the function is called, but before it executes any code inside]:</li>
+<ul class="square">
+<li>Create the <a href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/" title="JavaScript Scope Chain and Closures Explained">Scope Chain</a>.</li>
+<li>Create variables, functions and arguments.</li>
+<li>Determine the value of <a href="http://davidshariff.com/blog/javascript-this-keyword/"><code>"this"</code></a>.</li>
+</ul>
+<li><strong>Activation / Code Execution Stage</strong>:</li>
+<ul class="square">
+<li>Assign values, references to functions and interpret / execute code.</li>
+</ul>
+</ol>
+<p>It is possible to represent each <code>execution context</code> conceptually as an object with 3 properties:</p>
+<pre class=" language-clike"><code class=" language-clike">executionContextObj <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">'scopeChain'</span><span class="token punctuation">:</span> <span class="token punctuation">{</span> <span class="token comment" spellcheck="true">/* variableObject + all parent execution context's variableObject */</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string">'variableObject'</span><span class="token punctuation">:</span> <span class="token punctuation">{</span> <span class="token comment" spellcheck="true">/* function arguments / parameters, inner variable and function declarations */</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string">'this'</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code>
+</pre>
+<h3 id="ao">Activation / Variable Object [AO/VO]</h3>
+<p>This <code>executionContextObj</code> is created when the function is invoked, but <em>before</em> the actual function has been executed. This is known as stage 1, the <code>Creation Stage</code>. Here, the interpreter creates the <code>executionContextObj</code> by scanning the function for parameters or arguments passed in, local function declarations and local variable declarations. The result of this scan becomes the <code>variableObject</code> in the <code>executionContextObj</code>.</p>
+<p><strong>Here is a pseudo-overview of how the interpreter evaluates the code</strong>:</p>
+<ol>
+<li>Find some code to invoke a function.</li>
+<li>Before executing the <code>function</code> code, create the <code>execution context</code>.</li>
+<li>Enter the creation stage:</li>
+<ul class="square">
+<li>Initialize the <a href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/" title="JavaScript Scope Chain and Closures Explained"><code>Scope Chain</code></a>.</li>
+<li>Create the <code>variable object</code>:</li>
+<ul class="square">
+<li>Create the <code>arguments object</code>, check the context for parameters, initialize the name and value and create a reference copy.</li>
+<li>Scan the context for function declarations:</li>
+<ul class="circle">
+<li>For each function found, create a property in the <code>variable object</code> that is the exact function name, which has a reference pointer to the function in memory.</li>
+<li>If the function name exists already, the reference pointer value will be overwritten.</li>
+</ul>
+<li>Scan the context for variable declarations:</li>
+<ul class="circle">
+<li>For each variable declaration found, create a property in the <code>variable object</code> that is the variable name, and initialize the value as <a href="http://davidshariff.com/blog/javascripts-undefined-explored/">undefined</a>.</li>
+<li>If the variable name already exists in the <code>variable object</code>, do nothing and continue scanning.</li>
+</ul>
+</ul>
+<li>Determine the value of <a href="http://davidshariff.com/blog/javascript-this-keyword/"><code>"this"</code></a> inside the context.</li>
+</ul>
+<li>Activation / Code Execution Stage:</li>
+<ul class="square">
+<li>Run / interpret the function code in the context and assign variable values as the code is executed line by line.</li>
+</ul>
+</ol>
+<p>Let’s look at an example:</p>
+<pre class=" language-javascript"><code class=" language-javascript"><span class="token keyword">function</span> <span class="token function">foo<span class="token punctuation">(</span></span>i<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">var</span> a <span class="token operator">=</span> <span class="token string">'hello'</span><span class="token punctuation">;</span>
+    <span class="token keyword">var</span> b <span class="token operator">=</span> <span class="token keyword">function</span> <span class="token function">privateB<span class="token punctuation">(</span></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+
+    <span class="token punctuation">}</span><span class="token punctuation">;</span>
+    <span class="token keyword">function</span> <span class="token function">c<span class="token punctuation">(</span></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token function">foo<span class="token punctuation">(</span></span><span class="token number">22</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code>
+</pre>
+<p>On calling <code>foo(22)</code>, the <code>creation stage</code> looks as follows:</p>
+<pre class=" language-clike"><code class=" language-clike">fooExecutionContext <span class="token operator">=</span> <span class="token punctuation">{</span>
+    scopeChain<span class="token punctuation">:</span> <span class="token punctuation">{</span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    variableObject<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+        arguments<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+            <span class="token number">0</span><span class="token punctuation">:</span> <span class="token number">22</span><span class="token punctuation">,</span>
+            length<span class="token punctuation">:</span> <span class="token number">1</span>
+        <span class="token punctuation">}</span><span class="token punctuation">,</span>
+        i<span class="token punctuation">:</span> <span class="token number">22</span><span class="token punctuation">,</span>
+        c<span class="token punctuation">:</span> pointer to <span class="token keyword">function</span> <span class="token function">c<span class="token punctuation">(</span></span><span class="token punctuation">)</span>
+        a<span class="token punctuation">:</span> undefined<span class="token punctuation">,</span>
+        b<span class="token punctuation">:</span> undefined
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    this<span class="token punctuation">:</span> <span class="token punctuation">{</span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span> <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code>
+</pre>
+<p>As you can see, the <code>creation stage</code> handles defining the names of the properties, not assigning a value to them, with the exception of formal arguments / parameters. Once the <code>creation stage</code> has finished, the flow of execution enters the function and the activation / code <code>execution stage</code> looks like this after the function has finished execution:</p>
+<pre class=" language-clike"><code class=" language-clike">fooExecutionContext <span class="token operator">=</span> <span class="token punctuation">{</span>
+    scopeChain<span class="token punctuation">:</span> <span class="token punctuation">{</span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    variableObject<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+        arguments<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+            <span class="token number">0</span><span class="token punctuation">:</span> <span class="token number">22</span><span class="token punctuation">,</span>
+            length<span class="token punctuation">:</span> <span class="token number">1</span>
+        <span class="token punctuation">}</span><span class="token punctuation">,</span>
+        i<span class="token punctuation">:</span> <span class="token number">22</span><span class="token punctuation">,</span>
+        c<span class="token punctuation">:</span> pointer to <span class="token keyword">function</span> <span class="token function">c<span class="token punctuation">(</span></span><span class="token punctuation">)</span>
+        a<span class="token punctuation">:</span> <span class="token string">'hello'</span><span class="token punctuation">,</span>
+        b<span class="token punctuation">:</span> pointer to <span class="token keyword">function</span> <span class="token function">privateB<span class="token punctuation">(</span></span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    this<span class="token punctuation">:</span> <span class="token punctuation">{</span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span> <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code>
+</pre>
+<h3>A Word On Hoisting</h3>
+<p>You can find many resources online defining the term <code>hoisting</code> in JavaScript, explaining that variable and function declarations are <em>hoisted</em> to the top of their function scope. However, none explain in detail why this happens, and armed with your new knowledge about how the interpreter creates the <code>activation object</code>, it is easy to see why. Take the following code example:</p>
+<pre class=" line-numbers language-javascript"><code class=" language-javascript">​<span class="token punctuation">(</span><span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+
+    console<span class="token punctuation">.</span><span class="token function">log<span class="token punctuation">(</span></span><span class="token keyword">typeof</span> foo<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // function pointer
+</span>    console<span class="token punctuation">.</span><span class="token function">log<span class="token punctuation">(</span></span><span class="token keyword">typeof</span> bar<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true"> // undefined
+</span>
+    <span class="token keyword">var</span> foo <span class="token operator">=</span> <span class="token string">'hello'</span><span class="token punctuation">,</span>
+        bar <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">return</span> <span class="token string">'world'</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">function</span> <span class="token function">foo<span class="token punctuation">(</span></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token string">'hello'</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+<span class="token punctuation">}</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>​<span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code>
+</pre>
+<p>The questions we can now answer are:</p>
+<ul class="square" style="margin-bottom: 20px;">
+<li><strong>Why can we access foo before we have declared it?</strong></li>
+<ul class="circle">
+<li>If we follow the <code>creation stage</code>, we know the variables have already been created before the <code>activation / code execution stage</code>. So as the function flow started executing, <code>foo</code> had already been defined in the <code>activation object</code>.</li>
+</ul>
+<li><strong>Foo is declared twice, why is foo shown to be</strong> <code>function</code> <strong>and not</strong> <code>undefined</code> <strong>or</strong> <code>string</code><strong>?</strong></li>
+<ul class="circle">
+<li>Even though <code>foo</code> is declared twice, we know from the <code>creation stage</code> that functions are created on the <code>activation object</code> before variables, and if the property name already exists on the <code>activation object</code>, we simply bypass the decleration.</li>
+<li>Therefore, a reference to <code>function foo()</code> is first created on the <code>activation object</code>, and when the interpreter gets to <code>var foo</code>, we already see the property name <code>foo</code> exists so the code does nothing and proceeds.</li>
+</ul>
+<li><strong>Why is bar</strong> <code><a href="http://davidshariff.com/blog/javascripts-undefined-explored/">undefined</a></code><strong>?</strong></li>
+<ul class="circle">
+<li><code>bar</code> is actually a variable that has a function assignment, and we know the variables are created in the <code>creation stage</code> but they are initialized with the value of <code><a href="http://davidshariff.com/blog/javascripts-undefined-explored/">undefined</a></code>.</li>
+</ul>
+</ul>
+<h2>Summary</h2>
+<p>Hopefully by now you have a good grasp about how the JavaScript interpreter is evaluating your code. Understanding the execution context and stack allows you to know the reasons behind why your code is evaluating to different values that you had not initially expected.</p>
+<p>Do you think knowing the inner workings of the interpreter is too much overhead or a necessity to your JavaScript knowledge ? Does knowing the execution context phase help you write better JavaScript ?</p>
+<p><strong>Note:</strong> Some people have been asking about closures, callbacks, timeout etc which I will cover in the <a href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/" title="JavaScript Scope Chain and Closures Explained">next post</a>, focusing more on the <a href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/" title="JavaScript Scope Chain and Closures Explained">Scope Chain</a> in relation to the <code>execution context</code>.</p>
+<section class="further-reading">
+<h3>Further Reading</h3>
+<ul>
+<li><a href="http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-262.pdf">ECMA-262 5th Edition</a></li>
+<li><a href="http://dmitrysoshnikov.com/ecmascript/chapter-2-variable-object/">ECMA-262-3 in detail. Chapter 2. Variable object</a></li>
+<li><a href="http://jibbering.com/faq/notes/closures/#clIRExSc">Identifier Resolution, Execution Contexts and scope chains</a></li>
+</ul>
+</section>
+											</div><!-- .entry-content -->
+				
+			</article><!-- #post-## -->
+			</div>
+
+		
+	
+
+
+<div class="yarpp-related">
+<h2 id="also-read-title">Related Posts...</h2><ul id="also-read-items">
+<li style="color: rgb(119, 119, 119); background-color: white;"><a href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/" rel="bookmark" title="Identifier Resolution and Closures in the JavaScript Scope Chain"><h3>Identifier Resolution and Closures in the JavaScript Scope Chain</h3><p class="link_kudo" style="border: 3px solid rgb(119, 119, 119);">1</p></a></li>
+<li style="color: rgb(119, 119, 119); background-color: white;"><a href="http://davidshariff.com/blog/javascript-inheritance-patterns/" rel="bookmark" title="JavaScript Inheritance Patterns"><h3>JavaScript Inheritance Patterns</h3><p class="link_kudo" style="border: 3px solid rgb(119, 119, 119);">2</p></a></li>
+<li style="color: rgb(119, 119, 119); background-color: white;"><a href="http://davidshariff.com/blog/futures-and-promises-in-javascript/" rel="bookmark" title="Futures and Promises in JavaScript"><h3>Futures and Promises in JavaScript</h3><p class="link_kudo" style="border: 3px solid rgb(119, 119, 119);">3</p></a></li>
+<li style="color: rgb(119, 119, 119); background-color: white;"><a href="http://davidshariff.com/blog/javascript-this-keyword/" rel="bookmark" title="JavaScript’s ‘this’ Keyword"><h3>JavaScript’s ‘this’ Keyword</h3><p class="link_kudo" style="border: 3px solid rgb(119, 119, 119);">4</p></a></li>
+<li style="color: rgb(119, 119, 119); background-color: white;"><a href="http://davidshariff.com/blog/chaining-variable-assignments-in-javascript-words-of-caution/" rel="bookmark" title="Chaining Variable Assignments in JavaScript: Words of Caution"><h3>Chaining Variable Assignments in JavaScript: Words of Caution</h3><p class="link_kudo" style="border: 3px solid rgb(119, 119, 119);">5</p></a></li>
+</ul>
+</div>
+
+<div id="comments">
+	<h2>
+		Comments
+	</h2>
+
+	
+	<ol class="commentlist unstyled">
+			<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://www.scoop.it/t/codesource/p/2003007768/javascript-s-execution-context-stack-do-you-know-it-in-depth" rel="external nofollow" class="url">JavaScript's Execution Context &amp; Stack, Do You Know It In-Depth ? | CodeSource | Scoop.it</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="comment even thread-even depth-1" id="li-comment-37">
+		<article id="comment-37" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/6ed1f9b5afd258d0b73ad1eae10ac384" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn"><a href="http://blog.afandian.com/" rel="external nofollow" class="url">Joe</a></span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-37"><time pubdate="" datetime="2012-06-21T18:25:36+00:00">21/06/2012 at 6:25 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>I’d love to read this, but that sidebar is a deal breaker!</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=37#respond" onclick="return addComment.moveForm(&quot;comment-37&quot;, &quot;37&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-37 -->
+	<ul class="children">
+	<li class="comment byuser comment-author-admin bypostauthor odd alt depth-2" id="li-comment-41">
+		<article id="comment-41" class="comment row">
+			<div class="comment-author-avatar span1 offset1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/85845b4a20e7f101d29feb375f455630" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span6">
+				<div class="comment-author vcard">
+					<span class="fn">David Shariff</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-41"><time pubdate="" datetime="2012-06-23T18:55:56+00:00">23/06/2012 at 6:55 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span6">
+				<p>@Joe<br>
+Noted. I made a few changes already to the nav and social share.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=41#respond" onclick="return addComment.moveForm(&quot;comment-41&quot;, &quot;41&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-41 -->
+	</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://irrlab.com/2012/06/21/what-is-the-execution-context-stack-in-javascript/" rel="external nofollow" class="url">What is the Execution Context &amp; Stack in JavaScript? « thoughts…</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-40">
+		<article id="comment-40" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/711ab3ab804da3d3152a92340b3529c3" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Jon</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-40"><time pubdate="" datetime="2012-06-21T22:28:53+00:00">21/06/2012 at 10:28 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Awesome little article, good explanation of functions scope. I’m definitely bookmarking this.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=40#respond" onclick="return addComment.moveForm(&quot;comment-40&quot;, &quot;40&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-40 -->
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://javapins.com/What-is-the-Execution-Context-Stack-in-JavaScript" rel="external nofollow" class="url">JavaPins</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-even depth-1" id="li-comment-46">
+		<article id="comment-46" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/06294587d946bf60f869664a5f9b449c" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Les</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-46"><time pubdate="" datetime="2012-06-26T16:07:52+00:00">26/06/2012 at 4:07 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Great Article! Def cleared up a few gaps in my understanding.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=46#respond" onclick="return addComment.moveForm(&quot;comment-46&quot;, &quot;46&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-46 -->
+	</li><!-- #comment-## -->
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-49">
+		<article id="comment-49" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/56b533eab201715740dca59e3ddbf4b1" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn"><a href="http://codejournal.wordpress.com/" rel="external nofollow" class="url">Loke</a></span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-49"><time pubdate="" datetime="2012-06-29T23:21:52+00:00">29/06/2012 at 11:21 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Great article! I would recommend this to anyone looking to improve JS performance in their code.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=49#respond" onclick="return addComment.moveForm(&quot;comment-49&quot;, &quot;49&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-49 -->
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-even depth-1" id="li-comment-50">
+		<article id="comment-50" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/15d5b1a0739e3873dcb1766df1711113" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Dave Stibrany</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-50"><time pubdate="" datetime="2012-06-30T03:06:03+00:00">30/06/2012 at 3:06 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Ahhhh, ok now I can actually conceptualize what hoisting is really doing, on an actual code level basis.</p>
+<p>Thanks for this, looking forward to your scope chain article!</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=50#respond" onclick="return addComment.moveForm(&quot;comment-50&quot;, &quot;50&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-50 -->
+	</li><!-- #comment-## -->
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-51">
+		<article id="comment-51" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/1462f4e6ef1f15830f6f54a69496218e" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn"><a href="http://urbanski.pro/" rel="external nofollow" class="url">Wojtek Urbanski</a></span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-51"><time pubdate="" datetime="2012-06-30T15:48:00+00:00">30/06/2012 at 3:48 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Thanks for this great article! I was aware of 90% of this before. Now I know what is the logic behind and it makes a lot more sense. Thanks, I’m waiting for more!</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=51#respond" onclick="return addComment.moveForm(&quot;comment-51&quot;, &quot;51&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-51 -->
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-even depth-1" id="li-comment-52">
+		<article id="comment-52" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/f2b55187ddc2fa942c7db404522a669f" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Muhammad Atif</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-52"><time pubdate="" datetime="2012-07-01T17:21:58+00:00">01/07/2012 at 5:21 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Hi david.</p>
+<p>Great article. But I couldn’t get one thing. According to your executionContextObj.<br>
+<code>fooExecutionContext = {<br>
+    variableObject: {<br>
+        arguments: {<br>
+            0: 22,<br>
+            length: 1<br>
+        },<br>
+        i: 22, ........<br>
+</code><br>
+arguments and i is stored separately. so they shouldnt interfere with each other. but reality is when within function I update arguments[0] it changes ‘i’ or when I change ‘i’ it changes arguments[0] as well. Would you like to explain?</p>
+<p>Thank you,<br>
+Atif, Pakistan.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=52#respond" onclick="return addComment.moveForm(&quot;comment-52&quot;, &quot;52&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-52 -->
+	<ul class="children">
+	<li class="comment byuser comment-author-admin bypostauthor even depth-2" id="li-comment-64">
+		<article id="comment-64" class="comment row">
+			<div class="comment-author-avatar span1 offset1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/85845b4a20e7f101d29feb375f455630" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span6">
+				<div class="comment-author vcard">
+					<span class="fn">David Shariff</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-64"><time pubdate="" datetime="2012-07-20T13:30:22+00:00">20/07/2012 at 1:30 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span6">
+				<p>@Muhammad Atif<br>
+Although the arguments and formal parameter names are in separate places in the VO, they are actually a reference to each other, hence why when you change 1 the other changes.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=64#respond" onclick="return addComment.moveForm(&quot;comment-64&quot;, &quot;64&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-64 -->
+	<ul class="children">
+	<li class="comment odd alt depth-3" id="li-comment-1092">
+		<article id="comment-1092" class="comment row">
+			<div class="comment-author-avatar span1 offset2">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/07aecd550eef4d3edf2054475e695005" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span5">
+				<div class="comment-author vcard">
+					<span class="fn">Cosmo</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1092"><time pubdate="" datetime="2016-07-09T04:53:24+00:00">09/07/2016 at 4:53 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span5">
+				<p>What does “they are actually a reference to each other” mean here? If the argument is an object, I can understand both i and arguments[0] are holding the same reference to this object. But what about primitive value? I don’t think  we can doing something like holding a reference to a primitive since we usually just copy its value.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1092#respond" onclick="return addComment.moveForm(&quot;comment-1092&quot;, &quot;1092&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1092 -->
+	</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-53">
+		<article id="comment-53" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/60ed289c5f58f7f6ecbfe33105990405" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Rajnish Kumar</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-53"><time pubdate="" datetime="2012-07-02T13:31:54+00:00">02/07/2012 at 1:31 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Wonderful article.Really loved reading this article.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=53#respond" onclick="return addComment.moveForm(&quot;comment-53&quot;, &quot;53&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-53 -->
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-even depth-1" id="li-comment-55">
+		<article id="comment-55" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/8ea52024c9faeeda373944bf42303814" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn"><a href="http://johnweis.com/" rel="external nofollow" class="url">John Weis</a></span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-55"><time pubdate="" datetime="2012-07-04T04:31:31+00:00">04/07/2012 at 4:31 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Very thorough. Loved it.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=55#respond" onclick="return addComment.moveForm(&quot;comment-55&quot;, &quot;55&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-55 -->
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://blog.fabriziogiordano.it/2012/07/07/what-is-the-execution-context-stack-in-javascript/" rel="external nofollow" class="url">Fabrizio Giordano | What is the Execution Context &amp; Stack in JavaScript?</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-58">
+		<article id="comment-58" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/6347143af11a7b75924c2e123dd5ca21" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn"><a href="http://cwebbdesign.tumblr.com/" rel="external nofollow" class="url">Chris Webb</a></span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-58"><time pubdate="" datetime="2012-07-09T15:20:53+00:00">09/07/2012 at 3:20 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Great to see this broken down step by step with visuals. Thanks for taking the time to share knowledge!</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=58#respond" onclick="return addComment.moveForm(&quot;comment-58&quot;, &quot;58&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-58 -->
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-even depth-1" id="li-comment-60">
+		<article id="comment-60" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/c4cd0d2a3773ce5a0c9143edda65dd00" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">fox</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-60"><time pubdate="" datetime="2012-07-13T11:27:00+00:00">13/07/2012 at 11:27 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>great article, thank u</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=60#respond" onclick="return addComment.moveForm(&quot;comment-60&quot;, &quot;60&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-60 -->
+	</li><!-- #comment-## -->
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-65">
+		<article id="comment-65" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/325a258ee1a5ff024a5fe81270ff5f1a" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">marveltracker</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-65"><time pubdate="" datetime="2012-08-05T12:25:44+00:00">05/08/2012 at 12:25 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Very helpful post. Thanks</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=65#respond" onclick="return addComment.moveForm(&quot;comment-65&quot;, &quot;65&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-65 -->
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-even depth-1" id="li-comment-69">
+		<article id="comment-69" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/0f48bf1bea091d423fb9d53e0c83e355" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Jayasankar</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-69"><time pubdate="" datetime="2012-09-15T16:23:01+00:00">15/09/2012 at 4:23 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Thanks David, very nice article very useful defiantly cleared few doubts please post more articles when you get time.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=69#respond" onclick="return addComment.moveForm(&quot;comment-69&quot;, &quot;69&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-69 -->
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="https://hacks.mozilla.org/2012/10/weekly-html5-apps-developer-resources-october-3rd-2012/" rel="external nofollow" class="url">Weekly HTML5 Apps Developer Resources, October 3rd 2012 ✩ Mozilla Hacks – the Web developer blog</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-77">
+		<article id="comment-77" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/3c10e5ea60474f788f4293a3ff06a5af" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn"><a href="http://sunny@metaobject.in/" rel="external nofollow" class="url">Sunny</a></span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-77"><time pubdate="" datetime="2012-10-10T00:09:45+00:00">10/10/2012 at 12:09 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Really Good article. Keep it up!</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=77#respond" onclick="return addComment.moveForm(&quot;comment-77&quot;, &quot;77&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-77 -->
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-even depth-1" id="li-comment-78">
+		<article id="comment-78" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/9cb0cb37e498fddc8b65176d4b11278c" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Gaurav</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-78"><time pubdate="" datetime="2012-10-11T15:13:49+00:00">11/10/2012 at 3:13 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Thanks for this great post. It’s fantabulous.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=78#respond" onclick="return addComment.moveForm(&quot;comment-78&quot;, &quot;78&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-78 -->
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://devblog.xing.com/frontend/inspirational-reads-for-developers-2/" rel="external nofollow" class="url">Inspirational reads for developers | Frontend | XING Devblog</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-95">
+		<article id="comment-95" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/b3ad3b01ad77271abac12f3906b24010" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Rizwan</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-95"><time pubdate="" datetime="2012-11-15T13:46:24+00:00">15/11/2012 at 1:46 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>@Muhammad Atif,<br>
+       And remember this dynamic relationship between arguments object and formal parameters exists only for the parameters which get value during function call. e.g function test(a,b){}   is called as test(1) then changing arguments[0] will change value of a and vice-versa but changing arguments[1] will have no effect on value of b.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=95#respond" onclick="return addComment.moveForm(&quot;comment-95&quot;, &quot;95&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-95 -->
+	<ul class="children">
+	<li class="comment odd alt depth-2" id="li-comment-1271">
+		<article id="comment-1271" class="comment row">
+			<div class="comment-author-avatar span1 offset1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/75df72e122da71217973ad37fe0f3d1e" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span6">
+				<div class="comment-author vcard">
+					<span class="fn">Natasha</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1271"><time pubdate="" datetime="2017-01-03T12:19:46+00:00">03/01/2017 at 12:19 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span6">
+				<p>Hi, Rizwan!<br>
+Please, give me an example of the function test(a,b){} and  it’s invocation and I’ll try to show you that it is possible. Thanks!</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1271#respond" onclick="return addComment.moveForm(&quot;comment-1271&quot;, &quot;1271&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1271 -->
+	</li><!-- #comment-## -->
+	<li class="comment even depth-2" id="li-comment-1283">
+		<article id="comment-1283" class="comment row">
+			<div class="comment-author-avatar span1 offset1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/75df72e122da71217973ad37fe0f3d1e" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span6">
+				<div class="comment-author vcard">
+					<span class="fn">Natasha</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1283"><time pubdate="" datetime="2017-01-04T15:23:11+00:00">04/01/2017 at 3:23 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span6">
+				<p>Sorry. I was wrong.<br>
+Regards,<br>
+Natasha.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1283#respond" onclick="return addComment.moveForm(&quot;comment-1283&quot;, &quot;1283&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1283 -->
+	</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="comment odd alt thread-even depth-1" id="li-comment-102">
+		<article id="comment-102" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/d6203de885c311a42f5c551f048b195b" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn"><a href="http://andrew.hedges.name/" rel="external nofollow" class="url">Andrew Hedges</a></span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-102"><time pubdate="" datetime="2012-11-28T08:50:37+00:00">28/11/2012 at 8:50 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Here’s a little <a href="http://andrew.hedges.name/blog/2012/11/27/variable-hoisting-puzzle" title="Variable Hoisting Puzzle" rel="nofollow">JavaScript puzzle</a> that illustrates the point about the arguments object and variable declarations.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=102#respond" onclick="return addComment.moveForm(&quot;comment-102&quot;, &quot;102&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-102 -->
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://www.ofcodeprogramming.com/27540/execution-context-creation-and-activiation-stage" rel="external nofollow" class="url">Execution context – Creation and Activiation stage | Code and Programming</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-119">
+		<article id="comment-119" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/249e198b008d977df2f570f137a8efb2" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">jasonzhuang</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-119"><time pubdate="" datetime="2013-01-06T19:28:25+00:00">06/01/2013 at 7:28 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>@David Shariff, Could you explain the execution context for the following code:</p>
+<pre>Callbacks = function() {
+    var fire = function(context, args){
+          console.log("this is private fire() function");  
+        },
+        self = {
+            fireWith:function(context,args){
+                console.log("this is self.fireWith()");
+                <strong>fire(context, args);</strong>//mark line
+                return this;
+            },
+            fire:function(){
+                console.log("this is self.fire()");
+                self.fireWith(this, arguments);
+                return this;
+            }
+        };
+        return self;
+    }
+    var call = new Callbacks();
+    call.fire();
+}
+</pre>
+<p>Why fire method in self.fireWith() not call self.fire()?</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=119#respond" onclick="return addComment.moveForm(&quot;comment-119&quot;, &quot;119&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-119 -->
+	<ul class="children">
+	<li class="comment odd alt depth-2" id="li-comment-475">
+		<article id="comment-475" class="comment row">
+			<div class="comment-author-avatar span1 offset1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/009e15c673f4fa2c14cddfbddd215437" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span6">
+				<div class="comment-author vcard">
+					<span class="fn">ManInHat</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-475"><time pubdate="" datetime="2014-07-17T23:35:16+00:00">17/07/2014 at 11:35 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span6">
+				<p>I’ll take a stab at this, although it’s been over a month: </p>
+<p>1. In your code, fire() in the “self” object doesn’t reference an object method (as in “self.fire” or “this.fire”)<br>
+2. “fire()” is not defined within the context of the self.fireWith() function; it is declared as a variable alongside “self”. </p>
+<p>As a result, calling “fire()” pulls in (var fire). Hope this helps!</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=475#respond" onclick="return addComment.moveForm(&quot;comment-475&quot;, &quot;475&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-475 -->
+	</li><!-- #comment-## -->
+	<li class="comment even depth-2" id="li-comment-1268">
+		<article id="comment-1268" class="comment row">
+			<div class="comment-author-avatar span1 offset1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/75df72e122da71217973ad37fe0f3d1e" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span6">
+				<div class="comment-author vcard">
+					<span class="fn">Natasha</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1268"><time pubdate="" datetime="2017-01-03T03:45:23+00:00">03/01/2017 at 3:45 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span6">
+				<p>1) This code contents some mistakes. Without of them it looks like this:<br>
+<code>var Callbacks = function() {<br>
+    var fire = function(context, args){<br>
+          console.log("this is private fire() function");<br>
+        },<br>
+        self = {<br>
+            fireWith:function(context,args){<br>
+                console.log("this is self.fireWith()");<br>
+                fire(context, args);//mark line<br>
+                return this;<br>
+            },<br>
+            fire:function(){<br>
+                console.log("this is self.fire()");<br>
+                self.fireWith(this, arguments);<br>
+                return this;<br>
+            }<br>
+        };<br>
+        return self;<br>
+    };<br>
+    var call = new Callbacks();<br>
+    call.fire();</code><br>
+2) Because this constructor Callbacks (this name is not suitable for a constructor) returns an object (self) the variable call points to self and call.fire() is the same as self.fire().<br>
+3) the first statment of self.fire outputs the string “this is self.fire()”.<br>
+4) the next statment of self.fire invokes self.fireWith(this, arguments).<br>
+5)  the first statment of self.fireWith(this, arguments)  outputs the string “this is self.fireWith()”.<br>
+6)  the next statment of self.fireWith(this, arguments) invokes (!!!) the function fire(context, args), NOT the method of the object self self.fire().<br>
+I hope my exolanation is clear.<br>
+Thanks!</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1268#respond" onclick="return addComment.moveForm(&quot;comment-1268&quot;, &quot;1268&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1268 -->
+	</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="comment odd alt thread-even depth-1" id="li-comment-120">
+		<article id="comment-120" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/75d5fa1aee8d6faba2947df1155311b6" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Max Yan</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-120"><time pubdate="" datetime="2013-01-07T01:10:32+00:00">07/01/2013 at 1:10 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Thanks for sharing.really help</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=120#respond" onclick="return addComment.moveForm(&quot;comment-120&quot;, &quot;120&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-120 -->
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://www.jsued.com/?p=198" rel="external nofollow" class="url">javascript学习资料分享 | JSUED · 视觉设计 · 前端开发 · 交互设计 · 用户研究</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-133">
+		<article id="comment-133" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/39745382ba22e2481c0dd9910b7ee62d" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Marvin</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-133"><time pubdate="" datetime="2013-01-28T17:12:54+00:00">28/01/2013 at 5:12 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Great post explained in layman terms.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=133#respond" onclick="return addComment.moveForm(&quot;comment-133&quot;, &quot;133&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-133 -->
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-even depth-1" id="li-comment-134">
+		<article id="comment-134" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/253217accf3b626715251404748a020d" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Torro</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-134"><time pubdate="" datetime="2013-01-31T10:47:07+00:00">31/01/2013 at 10:47 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Great use of images to explain. Really enjoyed it.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=134#respond" onclick="return addComment.moveForm(&quot;comment-134&quot;, &quot;134&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-134 -->
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://seleniumhq.wordpress.com/2013/02/01/a-smattering-of-selenium-141/" rel="external nofollow" class="url">A Smattering of Selenium #141 « Official Selenium Blog</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://blogs.southworks.net/dschenkelman/2013/02/08/to-arrow-function-or-not-to-arrow-function/" rel="external nofollow" class="url">To Arrow Function or not to Arrow Function | Damian Schenkelman</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-146">
+		<article id="comment-146" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/75c0b7eb376732c051ea20cfd1d7086a" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">miro</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-146"><time pubdate="" datetime="2013-02-26T00:05:22+00:00">26/02/2013 at 12:05 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Great article, real in depth look at functions behind the scene. Exactly what I needed. Thank you.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=146#respond" onclick="return addComment.moveForm(&quot;comment-146&quot;, &quot;146&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-146 -->
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-even depth-1" id="li-comment-152">
+		<article id="comment-152" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/2c49821e27a5f89d2274b5f1df1dc9d9" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Ashish Krishan</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-152"><time pubdate="" datetime="2013-03-26T04:35:45+00:00">26/03/2013 at 4:35 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Good article. Explained very well</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=152#respond" onclick="return addComment.moveForm(&quot;comment-152&quot;, &quot;152&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-152 -->
+	</li><!-- #comment-## -->
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-163">
+		<article id="comment-163" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/f8c6c9a889b4b593ce9c846c5f022de8" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Willson</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-163"><time pubdate="" datetime="2013-03-30T02:16:52+00:00">30/03/2013 at 2:16 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Thanks for the great explanation here! I feel the best way to explain JS scope is visually, and your article really articulates this very well.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=163#respond" onclick="return addComment.moveForm(&quot;comment-163&quot;, &quot;163&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-163 -->
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-even depth-1" id="li-comment-165">
+		<article id="comment-165" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/f902650888fd503ae07429afb38dac4c" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">GuyK</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-165"><time pubdate="" datetime="2013-04-03T16:59:30+00:00">03/04/2013 at 4:59 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Great article, clear explanation.<br>
+Thanks!</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=165#respond" onclick="return addComment.moveForm(&quot;comment-165&quot;, &quot;165&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-165 -->
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://www.hackbs.com/javascript%e5%ad%a6%e4%b9%a0%e8%b5%84%e6%96%99%e5%88%86%e4%ba%ab/" rel="external nofollow" class="url">javascript学习资料分享 – 宋兵甲,炮灰乙,流氓丙,土匪丁,Just_So_so_Cel,YoLuo</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://kptek.wordpress.com/2013/05/22/js-execution-context-closures/" rel="external nofollow" class="url">JS Execution Context – Closures | Java</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-262">
+		<article id="comment-262" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/a76f2657f3faf1e37a617f93ddc8b2f4" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Maizere</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-262"><time pubdate="" datetime="2013-07-05T02:28:37+00:00">05/07/2013 at 2:28 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Great Article ,simply great.Also many thanks to David for this wonderful article. Thanks Again, I’m waiting for more! heart touching articles.Cleared up every confusions.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=262#respond" onclick="return addComment.moveForm(&quot;comment-262&quot;, &quot;262&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-262 -->
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-even depth-1" id="li-comment-264">
+		<article id="comment-264" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/a7b4de0a2d54da8d7cde0aecb471d202" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Sameer Pathak(Nepali)</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-264"><time pubdate="" datetime="2013-07-06T20:52:43+00:00">06/07/2013 at 8:52 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Perfect artical for those even with poor english.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=264#respond" onclick="return addComment.moveForm(&quot;comment-264&quot;, &quot;264&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-264 -->
+	</li><!-- #comment-## -->
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-267">
+		<article id="comment-267" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/9da413719ad5e9c1515cea67bd427a46" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">pepecristiano</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-267"><time pubdate="" datetime="2013-07-12T04:26:40+00:00">12/07/2013 at 4:26 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>What happens in the CA when among the arguments you have a call-back anonymous function?</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=267#respond" onclick="return addComment.moveForm(&quot;comment-267&quot;, &quot;267&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-267 -->
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-even depth-1" id="li-comment-298">
+		<article id="comment-298" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/e62934f32e114b52d14f0e5e7e0e0afc" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn"><a href="http://thewebstorebyg.wordpress.com/" rel="external nofollow" class="url">theWebStoreByG!</a></span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-298"><time pubdate="" datetime="2013-07-29T11:51:58+00:00">29/07/2013 at 11:51 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>First time reader… Brilliant article <img src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/icon_smile.gif" alt=":)" class="wp-smiley">  Now I definitely have a better understanding of the execution context.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=298#respond" onclick="return addComment.moveForm(&quot;comment-298&quot;, &quot;298&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-298 -->
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://www.yusufaytas.com/javascript-execution-context/" rel="external nofollow" class="url">JavaScript Execution Context - Yusuf Aytaş</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-334">
+		<article id="comment-334" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/f8614a2033f9be9f945bf48a4c334fd5" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">raziq</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-334"><time pubdate="" datetime="2013-10-02T15:27:26+00:00">02/10/2013 at 3:27 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>can u please make tutorial on function’s [[scope]] property how does it work.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=334#respond" onclick="return addComment.moveForm(&quot;comment-334&quot;, &quot;334&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-334 -->
+	<ul class="children">
+	<li class="comment byuser comment-author-admin bypostauthor odd alt depth-2" id="li-comment-335">
+		<article id="comment-335" class="comment row">
+			<div class="comment-author-avatar span1 offset1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/85845b4a20e7f101d29feb375f455630" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span6">
+				<div class="comment-author vcard">
+					<span class="fn">David Shariff</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-335"><time pubdate="" datetime="2013-10-02T15:31:42+00:00">02/10/2013 at 3:31 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span6">
+				<p>Raziq</p>
+<p>You can try reading my <a href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/" rel="nofollow">article</a> on <a href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/" rel="nofollow">Scope Chain</a>.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=335#respond" onclick="return addComment.moveForm(&quot;comment-335&quot;, &quot;335&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-335 -->
+	<ul class="children">
+	<li class="comment even depth-3" id="li-comment-336">
+		<article id="comment-336" class="comment row">
+			<div class="comment-author-avatar span1 offset2">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/f8614a2033f9be9f945bf48a4c334fd5" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span5">
+				<div class="comment-author vcard">
+					<span class="fn">raziq</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-336"><time pubdate="" datetime="2013-10-02T17:37:30+00:00">02/10/2013 at 5:37 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span5">
+				<p>i am currently reading ” javascript professional for web developer 3rd edition ” book there it talks about functions internal [[scope]] property which i dont understand very well i thought you can explain it better, and yes i have read your article on scope chain its very good and well written but there is no mention of function’s [[scope]] property</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=336#respond" onclick="return addComment.moveForm(&quot;comment-336&quot;, &quot;336&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-336 -->
+	</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="comment odd alt thread-even depth-1" id="li-comment-348">
+		<article id="comment-348" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/468ac7fe7ab19dfe8f81373f8ac78718" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">mani</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-348"><time pubdate="" datetime="2013-10-24T18:06:47+00:00">24/10/2013 at 6:06 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Really very nive article, it clears my doubts on how javascript interpreter works</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=348#respond" onclick="return addComment.moveForm(&quot;comment-348&quot;, &quot;348&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-348 -->
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://www.davidrogers.id.au/wp/?p=1906" rel="external nofollow" class="url">Execution Contexts and Scope Chains in Javascriptdavidrogers.id.au - blog | davidrogers.id.au – blog</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://zencode.me/javascript-execution-context-defeat/" rel="external nofollow" class="url">The Executioner: the JavaScript execution context and how to defeat it - Zen Code</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://geekblog.zhaoyan.me/professional-javascript-for-web-developers-%e5%a4%8d%e4%b9%a0%e7%ac%94%e8%ae%b0%ef%bc%88variables-scope-and-memory%ef%bc%89/" rel="external nofollow" class="url">Professional Javascript For Web Developers – 复习笔记（Variables, Scope, and Memory） | Ian's Blog</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-378">
+		<article id="comment-378" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/f2c683e7dc0c4d4bcc790f87eaa67301" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">RobG</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-378"><time pubdate="" datetime="2013-12-13T11:19:09+00:00">13/12/2013 at 11:19 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Good article, but note that when entering function code, the ThisBinding is set first, not last. See ECMA-262 §10.4.3 (<a href="http://ecma-international.org/ecma-262/5.1/#sec-10.4.3" rel="nofollow">http://ecma-international.org/ecma-262/5.1/#sec-10.4.3</a>)</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=378#respond" onclick="return addComment.moveForm(&quot;comment-378&quot;, &quot;378&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-378 -->
+	<ul class="children">
+	<li class="comment byuser comment-author-admin bypostauthor odd alt depth-2" id="li-comment-392">
+		<article id="comment-392" class="comment row">
+			<div class="comment-author-avatar span1 offset1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/85845b4a20e7f101d29feb375f455630" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span6">
+				<div class="comment-author vcard">
+					<span class="fn">David Shariff</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-392"><time pubdate="" datetime="2014-01-22T04:30:03+00:00">22/01/2014 at 4:30 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span6">
+				<p>This article is referring to ECMA:262-3 Section 10.2.3 </p>
+<p>“When control enters an execution context, the scope chain is created and initialised, variable instantiation is performed, and the this value is determined.”</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=392#respond" onclick="return addComment.moveForm(&quot;comment-392&quot;, &quot;392&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-392 -->
+	</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="comment even thread-even depth-1" id="li-comment-386">
+		<article id="comment-386" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/94d8420bed15b46007bbf7592aba40e3" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">md khan</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-386"><time pubdate="" datetime="2014-01-14T23:57:18+00:00">14/01/2014 at 11:57 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>does variable is hoisted first or function? </p>
+<p><code>(function foo(){<br>
+  return boo;<br>
+  function boo(){return this;}<br>
+  var boo = 5;<br>
+})()</code></p><code>
+<p>or</p>
+<p>(function foo(){<br>
+  return boo;<br>
+    var boo = 5;<br>
+  function boo(){return this;}</p>
+</code><p><code>})()</code></p>
+<p>both returns (in chrome),</p>
+<p>function boo(){return this;}</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=386#respond" onclick="return addComment.moveForm(&quot;comment-386&quot;, &quot;386&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-386 -->
+	<ul class="children">
+	<li class="comment byuser comment-author-admin bypostauthor odd alt depth-2" id="li-comment-393">
+		<article id="comment-393" class="comment row">
+			<div class="comment-author-avatar span1 offset1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/85845b4a20e7f101d29feb375f455630" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span6">
+				<div class="comment-author vcard">
+					<span class="fn">David Shariff</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-393"><time pubdate="" datetime="2014-01-22T04:40:58+00:00">22/01/2014 at 4:40 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span6">
+				<p>Functions are hoisted before variables.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=393#respond" onclick="return addComment.moveForm(&quot;comment-393&quot;, &quot;393&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-393 -->
+	</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://www.copyquery.com/javascript-why-variable-declaration-can-always-overwritten-function-declaration/" rel="external nofollow" class="url">Javascript: why variable declaration can always overwritten function declaration?CopyQuery CopyQuery | Question &amp; Answer Tool for your Technical Queries,CopyQuery, ejjuit, query, copyquery, copyquery.com, android doubt, ios question, sql query, sqlite</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-396">
+		<article id="comment-396" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/6e680b820d03c18b01f6c60228ffaf06" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Khushi</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-396"><time pubdate="" datetime="2014-01-24T19:27:30+00:00">24/01/2014 at 7:27 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Great Article. Loved it.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=396#respond" onclick="return addComment.moveForm(&quot;comment-396&quot;, &quot;396&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-396 -->
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-even depth-1" id="li-comment-401">
+		<article id="comment-401" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/bf96c11edad8f7fb49455b99e863346d" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Sriram</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-401"><time pubdate="" datetime="2014-02-04T17:40:45+00:00">04/02/2014 at 5:40 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Awesome article. Got a detailed understanding on many  concepts which haunted me for long time.  Great work dude..</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=401#respond" onclick="return addComment.moveForm(&quot;comment-401&quot;, &quot;401&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-401 -->
+	</li><!-- #comment-## -->
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-422">
+		<article id="comment-422" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/e910451bb0b95d04406c7044b1151f29" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Yufeng</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-422"><time pubdate="" datetime="2014-03-28T02:18:53+00:00">28/03/2014 at 2:18 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Really helpful for understanding the fundamental concept of the execution context. Great work !</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=422#respond" onclick="return addComment.moveForm(&quot;comment-422&quot;, &quot;422&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-422 -->
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-even depth-1" id="li-comment-428">
+		<article id="comment-428" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/f4502fdd4fe3df292bf2a21da3707ab4" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Andy Gray</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-428"><time pubdate="" datetime="2014-04-08T07:22:36+00:00">08/04/2014 at 7:22 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Superb explanation. A model of clarity. When is the book available?</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=428#respond" onclick="return addComment.moveForm(&quot;comment-428&quot;, &quot;428&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-428 -->
+	</li><!-- #comment-## -->
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-433">
+		<article id="comment-433" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/4284000f0c67f6a1c5e07f0688a39024" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Vishwa</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-433"><time pubdate="" datetime="2014-04-12T13:28:37+00:00">12/04/2014 at 1:28 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Good explanation</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=433#respond" onclick="return addComment.moveForm(&quot;comment-433&quot;, &quot;433&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-433 -->
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-even depth-1" id="li-comment-434">
+		<article id="comment-434" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/4284000f0c67f6a1c5e07f0688a39024" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Vishwa</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-434"><time pubdate="" datetime="2014-04-12T14:45:12+00:00">12/04/2014 at 2:45 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Hi David,</p>
+<p>would u please explain why last foo type is string? am I misunderstanding something<br>
+<code>console.log(typeof foo); // function pointer<br>
+    var foo = 'hello';<br>
+    console.log(typeof foo); // string<br>
+    function foo() {<br>
+        alert(1);<br>
+    };<br>
+    console.log(typeof foo); // string</code></p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=434#respond" onclick="return addComment.moveForm(&quot;comment-434&quot;, &quot;434&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-434 -->
+	<ul class="children">
+	<li class="comment even depth-2" id="li-comment-1550">
+		<article id="comment-1550" class="comment row">
+			<div class="comment-author-avatar span1 offset1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/94252cc3acbb517f11f0bb86c663f03e" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span6">
+				<div class="comment-author vcard">
+					<span class="fn">rp</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1550"><time pubdate="" datetime="2017-11-16T13:18:59+00:00">16/11/2017 at 1:18 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span6">
+				<p>because the Functions is hoisted,so function declation is useless in code executing</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1550#respond" onclick="return addComment.moveForm(&quot;comment-1550&quot;, &quot;1550&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1550 -->
+	</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://developer.telerik.com/featured/seven-javascript-quirks-i-wish-id-known-about/" rel="external nofollow" class="url">Seven JavaScript Quirks I Wish I’d Known About | Telerik Developer Network</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://www.codingserf.com/index.php/2014/05/jsquirks/" rel="external nofollow" class="url">Coding Serf - 【译】我希望我尽早知道的7个JavaScript怪癖</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://fix2pix.ru/?p=3928" rel="external nofollow" class="url">[Перевод] Всё, что вы должны знать о прототипах, замыканиях и производительности</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://www.zhouxianbao.cn/2014/05/28/%e6%88%91%e5%b8%8c%e6%9c%9b%e8%87%aa%e5%b7%b1%e5%b0%bd%e6%97%a9%e7%9f%a5%e9%81%93%e7%9a%847%e4%b8%aajavascript%e6%80%aa%e7%99%96/" rel="external nofollow" class="url">我希望自己尽早知道的7个JavaScript怪癖 | 笨笨时光机</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://www.kuaipao8.com/?p=1197" rel="external nofollow" class="url">7个JavaScript怪癖 « WEB开发分享</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://www.liangsheng.info/javascript-execution-context/" rel="external nofollow" class="url">JavaScript 执行环境 | LiangSheng</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-odd thread-alt depth-1" id="li-comment-508">
+		<article id="comment-508" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/b9901c2cdfb9fc1e1b03dab7c00f9282" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">hermit8888</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-508"><time pubdate="" datetime="2014-09-25T07:35:05+00:00">25/09/2014 at 7:35 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>I was reading the section on execution context in “Professional JavaScript for Web Developers” and was left somewhat confused, your explanation here cleared all that up, thank you!</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=508#respond" onclick="return addComment.moveForm(&quot;comment-508&quot;, &quot;508&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-508 -->
+	</li><!-- #comment-## -->
+	<li class="comment even thread-even depth-1" id="li-comment-512">
+		<article id="comment-512" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/2789258bb07961a5a9edf64cfe5f3de0" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Kevin</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-512"><time pubdate="" datetime="2014-10-07T14:49:39+00:00">07/10/2014 at 2:49 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Hi David,</p>
+<p>I enjoyed reading your post on execution context.<br>
+However, I have a doubt when I tried executing the following code:<br>
+<code><br>
+function abc()<br>
+{<br>
+  var a = 1;<br>
+  pqr();<br>
+}<br>
+function pqr()<br>
+{<br>
+  alert(a);<br>
+}<br>
+abc();<br>
+</code><br>
+Once I fire this code, it says that the variable “a” is not defined.</p>
+<p>I wrote this code only after I read that, “So we now know that everytime a function is called, a new execution context is created.”</p>
+<p>In the above case, the variable “a” was a part of function abc()<br>
+From abc() i called pqr() which I think created a new context and so the control went from abc() to pqr();</p>
+<p>Now my doubt is that since pqr() is on the top of the execution stack, it should logically be able access variable “a” that is declared inside abc() because of the scope chain.</p>
+<p>Can you please explain why my code did not run?</p>
+<p>Awaiting your reply</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=512#respond" onclick="return addComment.moveForm(&quot;comment-512&quot;, &quot;512&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-512 -->
+	<ul class="children">
+	<li class="comment byuser comment-author-admin bypostauthor odd alt depth-2" id="li-comment-539">
+		<article id="comment-539" class="comment row">
+			<div class="comment-author-avatar span1 offset1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/85845b4a20e7f101d29feb375f455630" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span6">
+				<div class="comment-author vcard">
+					<span class="fn">David Shariff</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-539"><time pubdate="" datetime="2014-12-15T04:49:41+00:00">15/12/2014 at 4:49 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span6">
+				<p>Each execution context has its own VO. JavaScript scoping is lexical, not dynamic. You can read more on scoping here <a href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/" rel="nofollow"></a><a href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/" rel="nofollow">http://davidshariff.com/blog/javascript-scope-chain-and-closures/</a> </p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=539#respond" onclick="return addComment.moveForm(&quot;comment-539&quot;, &quot;539&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-539 -->
+	</li><!-- #comment-## -->
+	<li class="comment even depth-2" id="li-comment-1006">
+		<article id="comment-1006" class="comment row">
+			<div class="comment-author-avatar span1 offset1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/8aafcc804d3b7682ed095cca93d7e8ac" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span6">
+				<div class="comment-author vcard">
+					<span class="fn">Chunming Cao</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1006"><time pubdate="" datetime="2016-02-24T04:21:24+00:00">24/02/2016 at 4:21 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span6">
+				<p>The scope chain is not related with the execution stack. </p>
+<p>The scope chain is lexical, and it is established when the funciton is created.</p>
+<p>You can call function pqr() multiple times. Wherever you call pqr(), the scope chain of pqr is the same. and the ‘a’ inside of pqr always refer to the globle variable.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1006#respond" onclick="return addComment.moveForm(&quot;comment-1006&quot;, &quot;1006&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1006 -->
+	</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://ngoding.co/code/javascript-variable-and-function-hoisting/" rel="external nofollow" class="url">Javascript variable and function hoisting | Ngoding</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-odd thread-alt depth-1" id="li-comment-529">
+		<article id="comment-529" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/a15e85dfb03972b3537b1d2b2dd35a6a" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Agradip</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-529"><time pubdate="" datetime="2014-12-08T18:09:46+00:00">08/12/2014 at 6:09 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>THANKS A LOT ,AWESOME ARTICLE</p>
+<p>Thanks,<br>
+Agradip</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=529#respond" onclick="return addComment.moveForm(&quot;comment-529&quot;, &quot;529&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-529 -->
+	</li><!-- #comment-## -->
+	<li class="comment even thread-even depth-1" id="li-comment-533">
+		<article id="comment-533" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/fe037fe344c1b8882eeb0e3b6ea3e128" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Jagadish Dharanikota</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-533"><time pubdate="" datetime="2014-12-12T18:43:19+00:00">12/12/2014 at 6:43 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Really like the article David. Every frontend developer should read this article. Thank you very much.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=533#respond" onclick="return addComment.moveForm(&quot;comment-533&quot;, &quot;533&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-533 -->
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://www.liyongxin.cc/?p=44" rel="external nofollow" class="url">了解javascript中的this --实例篇 | 李永信</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-odd thread-alt depth-1" id="li-comment-572">
+		<article id="comment-572" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/901d029b2ecd0e7fd8a437d362e20c02" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Pablo Perez</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-572"><time pubdate="" datetime="2015-02-14T12:31:12+00:00">14/02/2015 at 12:31 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Thank you for the aritlce David…great read</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=572#respond" onclick="return addComment.moveForm(&quot;comment-572&quot;, &quot;572&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-572 -->
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://www.sitepoint.com/inner-workings-javascripts-this-keyword/" rel="external nofollow" class="url">Revealing the Inner Workings of JavaScript's "this" Keyword</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://codango.net/revealing-the-inner-workings-of-javascripts-this-keyword/" rel="external nofollow" class="url">Revealing the Inner Workings of JavaScript’s “this” Keyword | CodangoNet</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="https://babs115.wordpress.com/2015/05/20/method-in-java/" rel="external nofollow" class="url">What is the Execution Context in html? | babs115</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://dexpage.com/why-does-variable-hoisting-occurs-in-javascript-in-terms-of-execution-context-closed/" rel="external nofollow" class="url">why does variable hoisting occurs in JavaScript, in terms of execution context [closed] - DexPage</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://dexpage.com/how-javascript-retains-the-outer-functions-execution-context-when-an-inner-function-is-returned/" rel="external nofollow" class="url">How javascript retains the outer function's execution context when an inner function is returned? - DexPage</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="comment even thread-even depth-1" id="li-comment-751">
+		<article id="comment-751" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/135798fcfff31c7c4280cfbba39f00c7" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Mohamed</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-751"><time pubdate="" datetime="2015-07-17T05:16:34+00:00">17/07/2015 at 5:16 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Thanks a lot for this article, I was struggling against these concepts, but I have a better understanding now thanks to you.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=751#respond" onclick="return addComment.moveForm(&quot;comment-751&quot;, &quot;751&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-751 -->
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://www.scoop.it/t/frontend-by-moonatcs/p/4048374905/2015/07/27/what-is-the-execution-context-stack-in-javascript-by-david-shariff" rel="external nofollow" class="url">What is the Execution Context &amp; Stack in Ja...</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://blog.enue.cn/2015/08/11/javascript-weekly-no-85/" rel="external nofollow" class="url">Javascript Weekly No.85 | ENUE Blog</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://alvaro.s1mp.net/2015/09/15/javascript-escopo-e-contexto/" rel="external nofollow" class="url">JavaScript: escopo e contexto - Álvaro Guimarães</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://www.aliog.com/80670.html" rel="external nofollow" class="url">掌握JS中的“this” (一) - Web前端 - 阿里欧歌</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-odd thread-alt depth-1" id="li-comment-870">
+		<article id="comment-870" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/c184309ff85e6148265c799b0ee097bd" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Skyler</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-870"><time pubdate="" datetime="2015-10-22T23:43:31+00:00">22/10/2015 at 11:43 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Amazingly helpful explanation! Thank you so much. Would you happen to have to any explanations like this regarding closure? Also, what sorts of aspects are covered in your book? Thank you again!</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=870#respond" onclick="return addComment.moveForm(&quot;comment-870&quot;, &quot;870&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-870 -->
+	</li><!-- #comment-## -->
+	<li class="comment even thread-even depth-1" id="li-comment-872">
+		<article id="comment-872" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/286e7e454defb79e31e24bf278e6d17f" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">angel calderaro</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-872"><time pubdate="" datetime="2015-10-23T11:08:54+00:00">23/10/2015 at 11:08 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Really like the article!</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=872#respond" onclick="return addComment.moveForm(&quot;comment-872&quot;, &quot;872&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-872 -->
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://dongc.me/wordpress/archives/559" rel="external nofollow" class="url">阿闯 » Closure 你知根知底嘛？</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://www.innocodive.com/blog/deeper-dive-into-javascript-functions/" rel="external nofollow" class="url">Learn Javascript Functions properly to become better Javascript programmers</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-odd thread-alt depth-1" id="li-comment-963">
+		<article id="comment-963" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/38733d1db8d24d975f493093e83770a4" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Ankit Mongia</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-963"><time pubdate="" datetime="2016-01-03T20:24:03+00:00">03/01/2016 at 8:24 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>gr8 article.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=963#respond" onclick="return addComment.moveForm(&quot;comment-963&quot;, &quot;963&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-963 -->
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://javascript.javacss.space/2016/01/14/scope-how-javascript-retains-the-outer-function39s-execution-context-when-an-inner-function-is-returned/" rel="external nofollow" class="url">scope - How javascript retains the outer function's execution context when an inner function is returned? - javascript</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://www.itdadao.com/article/325031/" rel="external nofollow" class="url">后端程序员的 JavaScript 之旅 – 作用域链、执行上下文与闭包-IT大道</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="https://iamjayakumars.wordpress.com/2016/02/16/javascript-prototype-chains-scope-chains-and-performance-what-you-need-to-knowjavascript-prototype-chains-scope-chains-and-performance-what-you-need-to-k" rel="external nofollow" class="url">JavaScript Prototype Chains, Scope Chains, and Performance: What You Need to KnowJavaScript Prototype Chains, Scope Chains, and Performance: What You Need to Know | Jayakumar Sadhasivam</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="comment even thread-even depth-1" id="li-comment-1013">
+		<article id="comment-1013" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/5bbc80a0e345ff33a0173f756e9fcb29" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Gourav Batra</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1013"><time pubdate="" datetime="2016-02-29T18:46:01+00:00">29/02/2016 at 6:46 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Awesome Article For Javascript Internals…….</p>
+<p>Thanks</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1013#respond" onclick="return addComment.moveForm(&quot;comment-1013&quot;, &quot;1013&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1013 -->
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-odd thread-alt depth-1" id="li-comment-1029">
+		<article id="comment-1029" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/b4da216ecb2bff4765bc949349e5b94a" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Aung Gyan</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1029"><time pubdate="" datetime="2016-03-16T11:55:26+00:00">16/03/2016 at 11:55 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Hi David,</p>
+<p>I’m now reading You Don’t Know JS book. According to writer, Javascript also compiles the code before executes it. Can we say Creation Stage as Compilation Stage?</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1029#respond" onclick="return addComment.moveForm(&quot;comment-1029&quot;, &quot;1029&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1029 -->
+	</li><!-- #comment-## -->
+	<li class="comment even thread-even depth-1" id="li-comment-1032">
+		<article id="comment-1032" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/9116f7334e5b6ea67b9d23be7e340a54" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn"><a href="http://swebrestaurant.com/" rel="external nofollow" class="url">monica</a></span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1032"><time pubdate="" datetime="2016-03-23T22:30:20+00:00">23/03/2016 at 10:30 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Great article! Very good explanation! I wish there were more articles like this. I’ve just been added to the Smart Web Restaurant’s team and it really helps me a lot to make everything clear with the team’s code. Thank you, David! Not everyone can write an article in 2012 that will be still relevant in 2016.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1032#respond" onclick="return addComment.moveForm(&quot;comment-1032&quot;, &quot;1032&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1032 -->
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-odd thread-alt depth-1" id="li-comment-1049">
+		<article id="comment-1049" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/bae8360954225cdffa9f6e3ff3b817cc" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">luo</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1049"><time pubdate="" datetime="2016-04-12T14:25:31+00:00">12/04/2016 at 2:25 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Hi David,</p>
+<p>“when the function is called, but before it executes any code inside”</p>
+<p>means :<br>
+function test(){<br>
+ var a =1;<br>
+}</p>
+<p>or<br>
+test()?</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1049#respond" onclick="return addComment.moveForm(&quot;comment-1049&quot;, &quot;1049&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1049 -->
+	<ul class="children">
+	<li class="comment even depth-2" id="li-comment-1472">
+		<article id="comment-1472" class="comment row">
+			<div class="comment-author-avatar span1 offset1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/2f5b3fa26595bc45871213860db4668f" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span6">
+				<div class="comment-author vcard">
+					<span class="fn">Anon</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1472"><time pubdate="" datetime="2017-08-16T03:09:53+00:00">16/08/2017 at 3:09 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span6">
+				<p>A) “function foo() {}” is a function declaration.</p>
+<p>B) “foo()” is a function invocation.</p>
+<p>The creation stage starts when you call (invoke) the function (line B). The code defined in the functions body during its declaration (line A) will only be executed during the code execution stage.</p>
+<p>Since the creation stage happens before the code executing stage, the statement is right. The creation stage starts “when the function is called” (line B) “but before it executes any code inside”, which will happen during the execution stage.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1472#respond" onclick="return addComment.moveForm(&quot;comment-1472&quot;, &quot;1472&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1472 -->
+	</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://www.dazhongdu.com/?p=2016" rel="external nofollow" class="url">后端程序员的 Js 之旅 ： 作用域链、执行上下文与闭包 | 大众阅读</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://www.amolpandey.com/2016/04/21/javascript-prototype-chains-scope-chains-and-performance-what-you-need-to-know/" rel="external nofollow" class="url">JavaScript Prototype Chains, Scope Chains, and Performance: What You Need to Know – Amol Pandey</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-even depth-1" id="li-comment-1105">
+		<article id="comment-1105" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/19598fdcc546563765c19ce5bcfc9ec1" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">dharmu</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1105"><time pubdate="" datetime="2016-07-24T15:48:46+00:00">24/07/2016 at 3:48 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Great article.</p>
+<p>I am not good at javascript and I am bit confused with below example<br>
+I have added two console logs<br>
+<code><br>
+(function() {<br>
+    console.log(typeof foo); // function pointer<br>
+    console.log(typeof bar); // undefined</code></p><code>
+<p>    var foo = 'hello',<br>
+        bar = function() {<br>
+            return 'world';<br>
+        };</p>
+</code><p><code>    console.log(typeof foo); // added<br>
+    function foo() {<br>
+        return 'hello';<br>
+    }<br>
+    console.log(typeof foo); // added<br>
+}());​<br>
+</code><br>
+Output is:<br>
+function<br>
+undefined<br>
+string<br>
+string</p>
+<p>I expected that it should have been<br>
+function<br>
+undefined<br>
+function<br>
+function</p>
+<p>or </p>
+<p>function<br>
+undefined<br>
+string<br>
+function</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1105#respond" onclick="return addComment.moveForm(&quot;comment-1105&quot;, &quot;1105&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1105 -->
+	<ul class="children">
+	<li class="comment even depth-2" id="li-comment-1471">
+		<article id="comment-1471" class="comment row">
+			<div class="comment-author-avatar span1 offset1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/2f5b3fa26595bc45871213860db4668f" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span6">
+				<div class="comment-author vcard">
+					<span class="fn">Anon</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1471"><time pubdate="" datetime="2017-08-16T03:01:06+00:00">16/08/2017 at 3:01 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span6">
+				<p>So many people asking the same question… Check my replies to Thomas and Manx, below.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1471#respond" onclick="return addComment.moveForm(&quot;comment-1471&quot;, &quot;1471&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1471 -->
+	</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="comment odd alt thread-odd thread-alt depth-1" id="li-comment-1109">
+		<article id="comment-1109" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/3adaf41ff064026894c321619f8dcfb4" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Thomas</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1109"><time pubdate="" datetime="2016-08-02T05:35:43+00:00">02/08/2016 at 5:35 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p><code><br>
+​(function() {</code></p><code>
+<p>    console.log(typeof foo); // function pointer<br>
+    console.log(typeof bar); // undefined</p>
+<p>    var foo = 'hello',<br>
+        bar = function() {<br>
+            return 'world';<br>
+        };</p>
+</code><p><code>    function foo() {<br>
+        return 'hello';<br>
+    }<br>
+    console.log(foo); // string<br>
+    foo(); //  Uncaught TypeError: foo is not a function(…)<br>
+}());​<br>
+</code><br>
+I dont get why the last console.log is a string?<br>
+And why when i invoke ‘foo():’ why is than foo not defined?</p>
+<p>I hope some can explain this. Because im really stuck here.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1109#respond" onclick="return addComment.moveForm(&quot;comment-1109&quot;, &quot;1109&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1109 -->
+	<ul class="children">
+	<li class="comment even depth-2" id="li-comment-1470">
+		<article id="comment-1470" class="comment row">
+			<div class="comment-author-avatar span1 offset1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/2f5b3fa26595bc45871213860db4668f" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span6">
+				<div class="comment-author vcard">
+					<span class="fn">Anon</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1470"><time pubdate="" datetime="2017-08-16T02:58:50+00:00">16/08/2017 at 2:58 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span6">
+				<p>The value “foo” is pointing to (initially, a function definition) is updated during the code execution stage.</p>
+<p>See my reply to Manx (below) for a more detailed explanation.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1470#respond" onclick="return addComment.moveForm(&quot;comment-1470&quot;, &quot;1470&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1470 -->
+	</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="comment odd alt thread-even depth-1" id="li-comment-1152">
+		<article id="comment-1152" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/d2717efa4e1d7006898f0135163ec4a4" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Andi Wilson</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1152"><time pubdate="" datetime="2016-09-09T23:51:09+00:00">09/09/2016 at 11:51 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Hey, thank you for the write-up! Extremely helpful. </p>
+<p>Just a quick typo in the last section: </p>
+<p>“and when [we get] interpreter gets to var foo”</p>
+<p>should be</p>
+<p>“and when [the] interpreter gets to var foo”</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1152#respond" onclick="return addComment.moveForm(&quot;comment-1152&quot;, &quot;1152&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1152 -->
+	</li><!-- #comment-## -->
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-1160">
+		<article id="comment-1160" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/dd800a3ad3b4044261b2ba39dc43321f" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Gibson Chikafa</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1160"><time pubdate="" datetime="2016-09-21T11:01:34+00:00">21/09/2016 at 11:01 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Great article. I like it. Thank you!!</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1160#respond" onclick="return addComment.moveForm(&quot;comment-1160&quot;, &quot;1160&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1160 -->
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-even depth-1" id="li-comment-1161">
+		<article id="comment-1161" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/28b86e8f63406c65eacdf3edb084132f" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">MirSujat</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1161"><time pubdate="" datetime="2016-09-26T16:06:17+00:00">26/09/2016 at 4:06 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>This is greate Article. Now i am clear about how js code work under the hood.. Thank you so much</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1161#respond" onclick="return addComment.moveForm(&quot;comment-1161&quot;, &quot;1161&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1161 -->
+	</li><!-- #comment-## -->
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-1182">
+		<article id="comment-1182" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/e364e1d4336706af58f5c117785eb088" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">anson</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1182"><time pubdate="" datetime="2016-10-20T11:25:51+00:00">20/10/2016 at 11:25 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>I Just be here to say thankyou. Too wenderful.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1182#respond" onclick="return addComment.moveForm(&quot;comment-1182&quot;, &quot;1182&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1182 -->
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-even depth-1" id="li-comment-1191">
+		<article id="comment-1191" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/b7285ba2504c8f6ffc6967208b229b6e" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Manx</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1191"><time pubdate="" datetime="2016-10-24T21:39:55+00:00">24/10/2016 at 9:39 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>var foo = 8;<br>
+function foo(){}<br>
+console.log(typeof foo);  //number   why?</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1191#respond" onclick="return addComment.moveForm(&quot;comment-1191&quot;, &quot;1191&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1191 -->
+	<ul class="children">
+	<li class="comment even depth-2" id="li-comment-1453">
+		<article id="comment-1453" class="comment row">
+			<div class="comment-author-avatar span1 offset1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/84a73158bfc3e5df9686949000308b5e" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span6">
+				<div class="comment-author vcard">
+					<span class="fn">jeff</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1453"><time pubdate="" datetime="2017-07-23T18:27:22+00:00">23/07/2017 at 6:27 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span6">
+				<p>it seems that the foo has been overwritten during the execution stage due to the same declared name, but it is not a good practice…</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1453#respond" onclick="return addComment.moveForm(&quot;comment-1453&quot;, &quot;1453&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1453 -->
+	</li><!-- #comment-## -->
+	<li class="comment odd alt depth-2" id="li-comment-1469">
+		<article id="comment-1469" class="comment row">
+			<div class="comment-author-avatar span1 offset1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/2f5b3fa26595bc45871213860db4668f" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span6">
+				<div class="comment-author vcard">
+					<span class="fn">Anon</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1469"><time pubdate="" datetime="2017-08-16T02:54:25+00:00">16/08/2017 at 2:54 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span6">
+				<p>var foo = 8; // A<br>
+function foo(){} // B<br>
+console.log(typeof foo); // C</p>
+<p>During the creation stage a reference (property in the activation object/ variable object) named “foo” is created and points to the function declared in line B.</p>
+<p>During the execution stage, the value “foo” points to is updated in line A. Now “foo” points to the number 8, NOT the function declared in line B.</p>
+<p>Nothing happens in line B during the execution stage (nothing to be executed here).</p>
+<p>In line C, “typeof” returns the type of the reference “foo” is pointing to, which, again, is the number 8.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1469#respond" onclick="return addComment.moveForm(&quot;comment-1469&quot;, &quot;1469&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1469 -->
+	</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-1203">
+		<article id="comment-1203" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/afa61f272c0ad48b1edc9a9717c43f84" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">sameno</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1203"><time pubdate="" datetime="2016-11-05T10:49:56+00:00">05/11/2016 at 10:49 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Hi David,</p>
+<p>How does interpreter deal with alert statement in creation stage? Does it execute in create stage or execute stage?</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1203#respond" onclick="return addComment.moveForm(&quot;comment-1203&quot;, &quot;1203&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1203 -->
+	<ul class="children">
+	<li class="comment odd alt depth-2" id="li-comment-1468">
+		<article id="comment-1468" class="comment row">
+			<div class="comment-author-avatar span1 offset1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/2f5b3fa26595bc45871213860db4668f" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span6">
+				<div class="comment-author vcard">
+					<span class="fn">Anon</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1468"><time pubdate="" datetime="2017-08-16T02:43:57+00:00">16/08/2017 at 2:43 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span6">
+				<p>An “alert statement” is a function invocation like any other, of course it is going to be executed (hint) during the code execution stage.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1468#respond" onclick="return addComment.moveForm(&quot;comment-1468&quot;, &quot;1468&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1468 -->
+	</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="comment even thread-even depth-1" id="li-comment-1212">
+		<article id="comment-1212" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/e364e1d4336706af58f5c117785eb088" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">anson</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1212"><time pubdate="" datetime="2016-11-22T21:00:46+00:00">22/11/2016 at 9:00 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Hi, David. I have review this article many time.</p>
+<p>I was confused this time with var vs let.<br>
+<code>var style</code></p><code>
+<p>function fn () {<br>
+  a = 1<br>
+  console.log(a)<br>
+  var a<br>
+}<br>
+fn() // The output was 1</p>
+</code><p><code>let style<br>
+function fn () {<br>
+  a = 1<br>
+  console.log(a)<br>
+  let a<br>
+}<br>
+fn() // Will throw Error. a is not defined.<br>
+</code><br>
+Does the scan of let is different from var?<br>
+thanks</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1212#respond" onclick="return addComment.moveForm(&quot;comment-1212&quot;, &quot;1212&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1212 -->
+	<ul class="children">
+	<li class="comment odd alt depth-2" id="li-comment-1423">
+		<article id="comment-1423" class="comment row">
+			<div class="comment-author-avatar span1 offset1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/b87d95c8b76d951b2ec2d67d34a343e6" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span6">
+				<div class="comment-author vcard">
+					<span class="fn">yan</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1423"><time pubdate="" datetime="2017-06-08T12:00:16+00:00">08/06/2017 at 12:00 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span6">
+				<p>There is a temporal dead zone for let or const.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1423#respond" onclick="return addComment.moveForm(&quot;comment-1423&quot;, &quot;1423&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1423 -->
+	</li><!-- #comment-## -->
+	<li class="comment even depth-2" id="li-comment-1467">
+		<article id="comment-1467" class="comment row">
+			<div class="comment-author-avatar span1 offset1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/2f5b3fa26595bc45871213860db4668f" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span6">
+				<div class="comment-author vcard">
+					<span class="fn">Anon</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1467"><time pubdate="" datetime="2017-08-16T02:39:25+00:00">16/08/2017 at 2:39 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span6">
+				<p><a href="http://exploringjs.com/es6/ch_variables.html#sec_temporal-dead-zone" rel="nofollow">http://exploringjs.com/es6/ch_variables.html#sec_temporal-dead-zone</a></p>
+<p>“A variable declared by let or const has a so-called temporal dead zone (TDZ): When entering its scope, it can’t be accessed (got or set) until execution reaches the declaration.”</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1467#respond" onclick="return addComment.moveForm(&quot;comment-1467&quot;, &quot;1467&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1467 -->
+	</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://www.craigrodrigues.com/2016/10/07/learning-to-code-week-21/" rel="external nofollow" class="url">Learning to Code: Week 21 – Eloquent Javascript – Craig Rodrigues</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://aes.jypc.org/?p=44004" rel="external nofollow" class="url">后端程序员的 JavaScript 之旅 – 作用域链、执行上下文与闭包 – 项目经验积累与分享</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-odd thread-alt depth-1" id="li-comment-1266">
+		<article id="comment-1266" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/75df72e122da71217973ad37fe0f3d1e" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Natasha</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1266"><time pubdate="" datetime="2017-01-02T13:14:38+00:00">02/01/2017 at 1:14 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>I am sorry for my English.<br>
+Quote: Here is a pseudo-overview of how the interpreter evaluates the code:</p>
+<p>1)    Find some code to invoke a function.<br>
+2)   Before executing the function code, create the execution context.<br>
+3)    Enter the creation stage:<br>
+The end of the quote.<br>
+Because the creation stage is the stage of creation the execution context, the list item “Enter the creation stage” must depend of the list item number 2 – “Before executing the function code, create the execution context.” It cannot be independent of number 2.<br>
+Thanks.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1266#respond" onclick="return addComment.moveForm(&quot;comment-1266&quot;, &quot;1266&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1266 -->
+	</li><!-- #comment-## -->
+	<li class="comment even thread-even depth-1" id="li-comment-1276">
+		<article id="comment-1276" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/75df72e122da71217973ad37fe0f3d1e" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Natasha</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1276"><time pubdate="" datetime="2017-01-04T09:19:25+00:00">04/01/2017 at 9:19 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p><code>fooExecutionContext = {<br>
+    scopeChain: { ... },<br>
+    variableObject: {<br>
+        arguments: {<br>
+            0: 22,<br>
+            length: 1<br>
+        },<br>
+        i: 22,<br>
+        c: pointer to function c()<br>
+        a: undefined,<br>
+        b: undefined<br>
+    },<br>
+    this: { ... }<br>
+}<br>
+fooExecutionContext = {<br>
+    scopeChain: { ... },<br>
+    variableObject: {<br>
+        arguments: {<br>
+            0: 22,<br>
+            length: 1<br>
+        },<br>
+        i: 22,<br>
+        c: pointer to function c()<br>
+        a: 'hello',<br>
+        b: pointer to function privateB()<br>
+    },<br>
+    this: { ... }<br>
+}</code><br>
+In my opinion the lines<br>
+c: pointer to function c()<br>
+and<br>
+b: pointer to function privateB()<br>
+look like little confused.<br>
+c pointes to function c (or variable c) because function c is declared and the variable c contents it’s definition.<br>
+b pointes to function privateB(){}. The variable b contents FE therefore it’s not correct to refer to its name (even linguistically) because it doesn’t exist in global context. The expression function privateB() can be considered as a result of function execution. Because the variable b pointes to the FE, thr correct way to describe the subject of this pointing is the expression function privateB(){}.<br>
+Regards,<br>
+Natasha</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1276#respond" onclick="return addComment.moveForm(&quot;comment-1276&quot;, &quot;1276&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1276 -->
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="https://berrangular.com/angular2/adding-angular/" rel="external nofollow" class="url">SBS Part 2: Adding Angular – Berrangular</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://dentedreality.com.au/2014/04/24/seven-javascript-quirks-i-wish-id-known-about-telerik-developer-network/" rel="external nofollow" class="url">Seven JavaScript Quirks I Wish I’d Known About | Telerik Developer Network · Dented Reality</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-odd thread-alt depth-1" id="li-comment-1294">
+		<article id="comment-1294" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/19888bdb742067f5b4ce0c08af34aa9f" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn"><a href="http://obennyto/" rel="external nofollow" class="url">Omri</a></span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1294"><time pubdate="" datetime="2017-01-09T21:58:19+00:00">09/01/2017 at 9:58 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Great Post!<br>
+Thanks</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1294#respond" onclick="return addComment.moveForm(&quot;comment-1294&quot;, &quot;1294&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1294 -->
+	</li><!-- #comment-## -->
+	<li class="comment even thread-even depth-1" id="li-comment-1365">
+		<article id="comment-1365" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/f460aee9887fd06b3c44fd78dfd350c8" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn"><a href="http://gengliming.com/" rel="external nofollow" class="url">CoderLIm</a></span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1365"><time pubdate="" datetime="2017-03-16T14:56:17+00:00">16/03/2017 at 2:56 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Great Post, very thorough!</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1365#respond" onclick="return addComment.moveForm(&quot;comment-1365&quot;, &quot;1365&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1365 -->
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="https://calebmcelrath.wordpress.com/2017/04/22/working-with-vanilla-js-in-web-applications/" rel="external nofollow" class="url">Working with Vanilla JS in Web Applications – Better Blogs Are Harder to Find</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-odd thread-alt depth-1" id="li-comment-1395">
+		<article id="comment-1395" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/53586e6fc0e1eb800511cb30b2711757" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Ray</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1395"><time pubdate="" datetime="2017-05-02T00:29:07+00:00">02/05/2017 at 12:29 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>I was watching Tony Alicia’s excellent JS The Good Parts Udemy course and he really gets into the concept of the Execution Context, but I felt that there were some details he was glossing over (or I was missing). Then I found this article! All is clear now! Thank you.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1395#respond" onclick="return addComment.moveForm(&quot;comment-1395&quot;, &quot;1395&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1395 -->
+	</li><!-- #comment-## -->
+	<li class="comment even thread-even depth-1" id="li-comment-1433">
+		<article id="comment-1433" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/976eec76a211fad3e35ac5025d3c6851" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Levi</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1433"><time pubdate="" datetime="2017-06-21T00:25:07+00:00">21/06/2017 at 12:25 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>I want to know how the Execution Context deal with block scope, is it as same as function scope?</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1433#respond" onclick="return addComment.moveForm(&quot;comment-1433&quot;, &quot;1433&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1433 -->
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-odd thread-alt depth-1" id="li-comment-1436">
+		<article id="comment-1436" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/c36fca740d8e82b99f4758ec99b697ac" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Reaviel</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1436"><time pubdate="" datetime="2017-06-23T03:54:14+00:00">23/06/2017 at 3:54 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Now i understand more about execution and creation context. Thank You.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1436#respond" onclick="return addComment.moveForm(&quot;comment-1436&quot;, &quot;1436&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1436 -->
+	</li><!-- #comment-## -->
+	<li class="comment even thread-even depth-1" id="li-comment-1444">
+		<article id="comment-1444" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/3018c1439197baf1784dfdc346385fc9" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">ufthelp</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1444"><time pubdate="" datetime="2017-07-10T22:05:52+00:00">10/07/2017 at 10:05 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Awesome Post. Thanks David Shariff for giving a crisp overview about execution context. Thanks.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1444#respond" onclick="return addComment.moveForm(&quot;comment-1444&quot;, &quot;1444&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1444 -->
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-odd thread-alt depth-1" id="li-comment-1445">
+		<article id="comment-1445" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/3018c1439197baf1784dfdc346385fc9" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">ufthelp</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1445"><time pubdate="" datetime="2017-07-10T22:06:34+00:00">10/07/2017 at 10:06 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Awesome Post . Thanks David for giving a crystal clear explanation.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1445#respond" onclick="return addComment.moveForm(&quot;comment-1445&quot;, &quot;1445&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1445 -->
+	</li><!-- #comment-## -->
+	<li class="comment even thread-even depth-1" id="li-comment-1484">
+		<article id="comment-1484" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/7621a00923963b562d09f0f96c5f870a" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Pankaj</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1484"><time pubdate="" datetime="2017-09-01T00:07:37+00:00">01/09/2017 at 12:07 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>great article. very useful to me as noob. thanks</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1484#respond" onclick="return addComment.moveForm(&quot;comment-1484&quot;, &quot;1484&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1484 -->
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-odd thread-alt depth-1" id="li-comment-1491">
+		<article id="comment-1491" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/02f95edefc8847c020d68e9fc4e5bc7a" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn"><a href="https://alexhost.com/dedicated-servers.html" rel="external nofollow" class="url">Dedicated servers</a></span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1491"><time pubdate="" datetime="2017-09-11T11:39:11+00:00">11/09/2017 at 11:39 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>What comes first, what comes second and so on, and if you did not have an “Execution Context” environment everything goes to hell.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1491#respond" onclick="return addComment.moveForm(&quot;comment-1491&quot;, &quot;1491&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1491 -->
+	</li><!-- #comment-## -->
+	<li class="comment even thread-even depth-1" id="li-comment-1498">
+		<article id="comment-1498" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/7f6e7ee7ad62f621b10528d6a8f69a8e" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn"><a href="http://www.codingpill.com/" rel="external nofollow" class="url">Coding System Design interviews</a></span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1498"><time pubdate="" datetime="2017-09-19T02:46:49+00:00">19/09/2017 at 2:46 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Awesome post!</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1498#respond" onclick="return addComment.moveForm(&quot;comment-1498&quot;, &quot;1498&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1498 -->
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-odd thread-alt depth-1" id="li-comment-1501">
+		<article id="comment-1501" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/798087843f5901a0c9a37d572786f02a" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">vivek kumar</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1501"><time pubdate="" datetime="2017-09-24T00:45:27+00:00">24/09/2017 at 12:45 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>var x = 10;</p>
+<p>function z(){<br>
+	var x = x = 20;<br>
+        console.log(x);<br>
+}<br>
+z();<br>
+console.log(x); // why is 10 printed? Shouldn’t it be 20.</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1501#respond" onclick="return addComment.moveForm(&quot;comment-1501&quot;, &quot;1501&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1501 -->
+	</li><!-- #comment-## -->
+	<li class="comment even thread-even depth-1" id="li-comment-1505">
+		<article id="comment-1505" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/4e4c249d2f38ac3b8544b9c37b09477b" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Feng</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1505"><time pubdate="" datetime="2017-09-28T13:40:12+00:00">28/09/2017 at 1:40 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Wish I read this great aritical earlier.</p>
+<p>BTW, is this IIFE (after “A Word On Hoisting”) a possible typo ?</p>
+<p>}());​<br>
+     ^<br>
+SyntaxError: Invalid or unexpected token</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1505#respond" onclick="return addComment.moveForm(&quot;comment-1505&quot;, &quot;1505&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1505 -->
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-odd thread-alt depth-1" id="li-comment-1506">
+		<article id="comment-1506" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/047cc59ee28c8190ffabad1fc98c1cc3" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Ravi Gupta</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1506"><time pubdate="" datetime="2017-09-29T19:07:12+00:00">29/09/2017 at 7:07 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Very through post. Great work</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1506#respond" onclick="return addComment.moveForm(&quot;comment-1506&quot;, &quot;1506&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1506 -->
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://newradicals.net/java-script-error-can-access-dead-object/" rel="external nofollow" class="url">Java Script Error Can Access Dead Object</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="comment even thread-even depth-1" id="li-comment-1517">
+		<article id="comment-1517" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/6c820ad4f5c6882554457dcd6dd28d51" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">duke63</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1517"><time pubdate="" datetime="2017-10-12T17:55:47+00:00">12/10/2017 at 5:55 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>very good explained, thanks</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1517#respond" onclick="return addComment.moveForm(&quot;comment-1517&quot;, &quot;1517&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1517 -->
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://javascript2.psmeimei.com/2017/10/23/executioncontextinjavascript/" rel="external nofollow" class="url">ExecutionContextinJavaScript – javascript设计</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="http://javascript2.psmeimei.com/?p=705" rel="external nofollow" class="url">ExecutionContextinJavaScript – javascript设计</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-odd thread-alt depth-1" id="li-comment-1544">
+		<article id="comment-1544" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/702c94542150747d10bd9c8d6000a37e" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Shahin</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1544"><time pubdate="" datetime="2017-11-06T01:34:25+00:00">06/11/2017 at 1:34 am</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Thank you for this great article.</p>
+<p>Could you please explain to me why we have ‘out’ log before ‘in’, here?</p>
+<p>for (var i = 0; i &lt; 5; i++) {<br>
+    setTimeout(function () {<br>
+        console.log('in '+ i);<br>
+    }, 0);<br>
+}</p>
+<p>console.log('out ' + i);</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1544#respond" onclick="return addComment.moveForm(&quot;comment-1544&quot;, &quot;1544&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1544 -->
+	</li><!-- #comment-## -->
+	<li class="comment even thread-even depth-1" id="li-comment-1546">
+		<article id="comment-1546" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/1f000b608f88dc6d1641fe7aeb3f8f6f" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Felix</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1546"><time pubdate="" datetime="2017-11-10T16:08:36+00:00">10/11/2017 at 4:08 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Awesome post! Cloud you tell me how you learn about this?reading book?</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1546#respond" onclick="return addComment.moveForm(&quot;comment-1546&quot;, &quot;1546&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1546 -->
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p class="row">
+			<strong class="ping-label span1">Pingback:</strong>
+			<span class="span7"><a href="https://nthaihai.wordpress.com/2017/12/09/series-javascript-javascript-hoisting/" rel="external nofollow" class="url">Series Javascript: Javascript Hoisting | Sharing is learning</a></span>
+		</p>
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-odd thread-alt depth-1" id="li-comment-1579">
+		<article id="comment-1579" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/d90c48271e6301fba06724cb1ad931eb" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Mahesh</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1579"><time pubdate="" datetime="2017-12-21T18:39:32+00:00">21/12/2017 at 6:39 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>Hi,<br>
+Nice Article.<br>
+I have one doubt.<br>
+actually I am iterating an array in for loop.<br>
+I have nested if else in my for loop like this.<br>
+var arr={“one”: 1 ,”two” :2 ,”three” : 3};<br>
+for(key,value in arr)<br>
+{<br>
+ if(key == “one”)<br>
+{<br>
+    // some task<br>
+}<br>
+else if(“key” == “two”)<br>
+{<br>
+ // some task<br>
+}<br>
+else<br>
+{<br>
+ //some other task<br>
+}<br>
+}<br>
+what I want to know is<br>
+how the interpretation done and how the execution flow will be done?</p>
+<p>actually in my case in the Interpretation process for keys one and two also it is coming to else block. but in execution process it is not coming to else block?<br>
+can you please explain in detail?<br>
+thank you in advance</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1579#respond" onclick="return addComment.moveForm(&quot;comment-1579&quot;, &quot;1579&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1579 -->
+	</li><!-- #comment-## -->
+	<li class="comment even thread-even depth-1" id="li-comment-1581">
+		<article id="comment-1581" class="comment row">
+			<div class="comment-author-avatar span1">
+				<img alt="" src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/2e5d28d32c7e271430680dccc44fcd74" class="avatar avatar-70 photo" height="70" width="70">			</div>
+			<footer class="comment-meta span7">
+				<div class="comment-author vcard">
+					<span class="fn">Spike</span> <span class="says">said</span> on <a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#comment-1581"><time pubdate="" datetime="2017-12-24T12:31:05+00:00">24/12/2017 at 12:31 pm</time></a>:				</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content span7">
+				<p>thanks a lot</p>
+<a class="comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/?replytocom=1581#respond" onclick="return addComment.moveForm(&quot;comment-1581&quot;, &quot;1581&quot;, &quot;respond&quot;, &quot;137&quot;)">Reply <span>↓</span></a>			</div>
+
+		</article><!-- #comment-1581 -->
+	</li><!-- #comment-## -->
+	</ol>
+
+	
+</div><!-- #comments -->
+					<div class="comments">			<div id="respond" class="comment-respond">
+				<h3 id="reply-title" class="comment-reply-title">Leave a Reply <small><a rel="nofollow" id="cancel-comment-reply-link" href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#respond" style="display:none;">Cancel reply</a></small></h3>
+									<form action="http://davidshariff.com/blog/wp-comments-post.php" method="post" id="commentform" class="comment-form">
+																			<p class="comment-notes">Your email address will not be published. Required fields are marked <span class="required">*</span></p>							<p class="comment-form-author"><label for="author">Name <span class="required">*</span></label> <input id="author" name="author" type="text" value="" size="30" aria-required="true"></p>
+<p class="comment-form-email"><label for="email">Email <span class="required">*</span></label> <input id="email" name="email" type="text" value="" size="30" aria-required="true"></p>
+<p class="comment-form-url"><label for="url">Website</label> <input id="url" name="url" type="text" value="" size="30"></p>
+<p class="cptch_block"><label>[Spam Check] What is: <span class="required"> *</span></label><br>		<input type="hidden" name="cptch_result" value="vjA=">
+		<input type="hidden" name="cptch_time" value="1531702671">
+		<input type="hidden" value="Version: 4.1.2">
+		<input id="cptch_input" class="cptch_input" type="text" autocomplete="off" name="cptch_number" value="" maxlength="2" size="2" aria-required="true" required="required" style="margin-bottom:0;display:inline;font-size: 12px;width: 40px;"> − 6 =  two</p>												<p class="comment-form-comment"><label for="comment">Comment</label> <textarea id="comment" name="comment" cols="45" rows="8" aria-required="true"></textarea></p>						<p class="form-allowed-tags">You may use these <abbr title="HyperText Markup Language">HTML</abbr> tags and attributes:  <code>&lt;a href="" title=""&gt; &lt;abbr title=""&gt; &lt;acronym title=""&gt; &lt;b&gt; &lt;blockquote cite=""&gt; &lt;cite&gt; &lt;code&gt; &lt;del datetime=""&gt; &lt;em&gt; &lt;i&gt; &lt;q cite=""&gt; &lt;strike&gt; &lt;strong&gt; </code></p>						<p class="form-submit">
+							<input name="submit" type="submit" id="submit" value="Post Comment">
+							<input type="hidden" name="comment_post_ID" value="137" id="comment_post_ID">
+<input type="hidden" name="comment_parent" id="comment_parent" value="0">
+						</p>
+											</form>
+							</div><!-- #respond -->
+			</div>			
+<nav class="pagination">
+  <span class="prev">
+    <a href="http://davidshariff.com/blog/" class="back_to_blog">←&nbsp;&nbsp;&nbsp;read more</a>
+  </span>
+</nav>
+
+</section><!-- #main -->
+
+<script data-cfasync="false" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+
+<script type="text/javascript" charset="utf-8">
+
+
+    $('.comment code').each(function() {
+        var that = $(this),
+            parent = that.parent()[0];
+        if (parent && parent.nodeName.toLowerCase() !== 'pre') {
+             that.wrap('<pre class="language-javascript"></pre>');
+        }
+    });
+
+    
+    $('.comment pre').each(function() {
+        var that = $(this),
+            child = that.children()[0];
+        if (child && child.nodeName.toLowerCase() !== 'code') {
+             that.addClass('language-javascript');
+             that.html('<code>' + $(this).html() + '</code>');
+        }
+    });
+
+</script>
+
+<script src="./What is the Execution Context &amp; Stack in JavaScript_ by David Shariff_files/prism.js.下载"></script>
+		
+			
+
+<script type="text/javascript">
+  
+  jQuery(document).ready(function($) {
+    $("#also-read-items li").hover(
+      function() {
+        $(this).css('color', 'white');
+        $(this).css('background-color', '#a1e69e');
+        $(this).find('.link_kudo').css('border', '3px solid white');
+      },
+      function() {
+        $(this).css('color', '#777');
+        $(this).css('background-color', 'white');
+        $(this).find('.link_kudo').css('border', '3px solid #777');
+      }
+    );
+  });
+</script></body></html>
